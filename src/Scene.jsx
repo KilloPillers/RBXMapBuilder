@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { gouraudMaterial } from './GouraudShader';
+import { gouraudMaterial } from './Shaders/GouraudShader';
 
 function MapScene({width, height}) {
   const containerRef = useRef();
@@ -17,25 +17,25 @@ function MapScene({width, height}) {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     containerRef.current.appendChild(renderer.domElement);
-
        // Add a directional light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light, half intensity
-    directionalLight.position.set(3, 3, 3); // Positioned at an angle to the scene
+    directionalLight.position.set(0, 10, 0); // Positioned at an angle to the scene
     scene.add(directionalLight);
 
     // Add an ambient light for soft overall light
     const ambientLight = new THREE.AmbientLight(0xffffff, .5); // Also white light, half intensity
     scene.add(ambientLight);
 
-
-    const spacing = 1.05;
+    const spacing = 1.005;
     const gridSize = width * height;
 
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         // Create a cube        
         const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        geometry.scale(1, 1, 1);
+
+        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }); 
         const cube = new THREE.Mesh(geometry, material);
 
         cube.position.x = (i - Math.floor(width / 2)) * spacing;
@@ -44,12 +44,14 @@ function MapScene({width, height}) {
       }
     }
 
-    camera.position.z = 5;
+    camera.position.z = -8;
+    camera.position.y = 5;
+    camera.position.x = -8;
+    camera.lookAt(target);
     // Add orbit controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controlsRef.current = controls;
     controls.target = target;
-    controls.update();
 
     const animate = function () {
       requestAnimationFrame(animate);
@@ -62,22 +64,19 @@ function MapScene({width, height}) {
 
     animate();
 
-    // Handle window resize
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+    // Adjust renderer size to fit the container
+    const resizeRendererToDisplaySize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
-    window.addEventListener('resize', handleResize);
-
+    window.addEventListener('resize', resizeRendererToDisplaySize);
     // Add Click event listener to window
     const onCanvasClick = (event) => {
       event.preventDefault();
       // Calculate mouse position in normalized device coordinates
       // (-1 to +1) for both components
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      mouse.x = ( (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
+      mouse.y = -( (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
 
       // Update the picking ray with the camera and mouse position
       raycaster.setFromCamera(mouse, camera);
@@ -86,15 +85,15 @@ function MapScene({width, height}) {
       const intersects = raycaster.intersectObjects(scene.children);
       if (intersects.length > 0) {
         const selectedObject = intersects[0].object;
-        selectedObject.material.color = colorSelected;
+        selectedObject.material.color = (selectedObject.material.color.equals(colorSelected) ? new THREE.Color(0x00ff00) : colorSelected);
       }
     };
 
     window.addEventListener('mousedown', onCanvasClick);
 
     return () => {
-      window.removeEventListener('click', handleResize);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousedown', onCanvasClick);
+      window.removeEventListener('resize', resizeRendererToDisplaySize);
       controls.dispose();
       renderer.dispose();
     };
