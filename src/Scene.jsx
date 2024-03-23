@@ -1,8 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 
-function MapScene({ mapData }) {
+function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
@@ -15,9 +20,12 @@ function MapScene({ mapData }) {
   const colorSelected = new THREE.Color(0xff0000); // Red
   const target = new THREE.Vector3(0,0,0) // Target to rotate around
 
+  // Create vectors to store camera position when mouse is down and up
   var cameraPositionOnButtonDown = new THREE.Vector3();
   var cameraPositionOnButtonUp = new THREE.Vector3();
-  // Extract map data
+
+  const cubes = [];
+ 
   useEffect(() => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -26,6 +34,72 @@ function MapScene({ mapData }) {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     rendererRef.current = renderer;
+
+    // Render pass for the entire scene without bloom
+    const renderPass = new RenderPass(scene, camera);
+
+    // Render pass for the bloom layer
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = 0.1;
+    bloomPass.strength = .2;
+    bloomPass.radius = 0.1;
+    const bloomComposer = new EffectComposer(renderer);
+    bloomComposer.addPass(renderPass);
+    bloomComposer.addPass(bloomPass);
+
+    bloomPass.renderToScreen = false;
+
+    const mixPass = new ShaderPass(
+      new THREE.ShaderMaterial({
+        uniforms: {
+          baseTexture: { value: null },
+          bloomTexture: { value: bloomComposer.renderTarget2.texture }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D baseTexture;
+          uniform sampler2D bloomTexture;
+          varying vec2 vUv;
+          void main() {
+            gl_FragColor = (texture2D(baseTexture, vUv) + vec4(1.0) * texture2D(bloomTexture, vUv));
+          }
+        `,
+        }), 'baseTexture'
+    );
+
+    const outputPass = new OutputPass();
+    bloomComposer.addPass(outputPass);
+    
+    const finalComposer = new EffectComposer(renderer);
+    finalComposer.addPass(renderPass);
+    finalComposer.addPass(mixPass);
+    finalComposer.addPass(outputPass);
+
+    const BLOOM_SCENE = 1;
+    const bloomLayer = new THREE.Layers();
+    bloomLayer.set(BLOOM_SCENE);
+    const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const materials = {};
+
+    const nonBloom = ( obj ) => {
+      if ( obj.isMesh && bloomLayer.test( obj.layers ) == false ) {
+        materials[ obj.uuid ] = obj.material;
+        obj.material = darkMaterial;
+      }
+    }
+    
+    const restoreMaterial = ( obj ) => {
+      if ( materials[ obj.uuid ] ) {
+        obj.material = materials[ obj.uuid ];
+        delete materials[ obj.uuid ];
+      }
+    }
 
     // check if the render's DOM element is in the container
     const container = containerRef.current;
@@ -43,7 +117,7 @@ function MapScene({ mapData }) {
     // Add an ambient light for soft overall light
     const ambientLight = new THREE.AmbientLight(0xffffff, .5); // Also white light, half intensity
     scene.add(ambientLight);
-
+    
     camera.position.z = -8;
     camera.position.y = 5;
     camera.position.x = -8;
@@ -53,13 +127,20 @@ function MapScene({ mapData }) {
     controlsRef.current = controls;
     controls.target = target;
 
-    const animate = function () {
-      requestAnimationFrame(animate);
+    const render = function () {
 
-      // Update camera position
+      scene.traverse(nonBloom);
+      bloomComposer.render();
+      scene.traverse(restoreMaterial);
+      finalComposer.render();
+
+      requestAnimationFrame(render);
+    }
+
+    const animate = function () {
       controls.update();
-      
-      renderer.render(scene, camera);
+
+      render();
     };
 
     animate();
@@ -67,6 +148,8 @@ function MapScene({ mapData }) {
     // Adjust renderer size to fit the container
     const resizeRendererToDisplaySize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
+      finalComposer.setSize(window.innerWidth, window.innerHeight);
+      bloomComposer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     };
@@ -86,7 +169,7 @@ function MapScene({ mapData }) {
       raycaster.setFromCamera(mouse, camera);
 
       // Calculate objects intersecting the picking ray
-      const intersects = raycaster.intersectObjects(scene.children);
+      const intersects = raycaster.intersectObjects(cubes).filter(intersect => intersect.object instanceof THREE.Mesh);
       if (intersects.length > 0) {
         const selectedObject = intersects[0].object;
         if (event.type === 'mousedown') {
@@ -99,7 +182,14 @@ function MapScene({ mapData }) {
           return;
         }
         if (event.type === 'mouseup') {
-          selectedObject.material.color = (selectedObject.material.color.equals(colorSelected) ? new THREE.Color(0x00ff00) : colorSelected);
+          // If the cube is already selected, deselect it
+          // Otherwise, select it
+          if (bloomLayer.test(selectedObject.layers)) {
+            setSelectedCubes(selectedCubes.filter(cube => cube !== selectedObject));
+          } else {
+            setSelectedCubes([...selectedCubes, selectedObject]);
+          }
+          selectedObject.layers.toggle(BLOOM_SCENE);
           cameraPositionOnButtonDown = new THREE.Vector3();
           cameraPositionOnButtonUp = new THREE.Vector3();
         }
@@ -133,7 +223,7 @@ function MapScene({ mapData }) {
 
     if (!scene || !map) return;
     // Update the cube heights based on the map data
-    const spacing = 1.005;
+    const spacing = 1.00;
 
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
@@ -145,13 +235,16 @@ function MapScene({ mapData }) {
         geometry.scale(1, cubeHeight, 1);
         geometry.translate(0, cubeHeight/2, 0);
 
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }); 
+        const material = new THREE.MeshMatcapMaterial({
+          color: 0x00ff00, 
+        });
         const cube = new THREE.Mesh(geometry, material);
-
+        cube.name = `cube-${i}-${j}`;
+  
         cube.position.x = (i - Math.floor(width / 2)) * spacing;
         cube.position.z = (j - Math.floor(height / 2)) * spacing; 
+        cubes.push(cube);
         scene.add(cube);
-
       }
     }
     

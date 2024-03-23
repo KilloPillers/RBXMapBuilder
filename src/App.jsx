@@ -16,10 +16,12 @@ function App() {
     setMapData(newMapData);
   }
 
+  const [selectedCubes, setSelectedCubes] = useState([]);
+
   return (
     <div className="app">
       <div className="scene">
-        <MapScene mapData={mapData}/>
+        <MapScene mapData={mapData} selectedCubes={selectedCubes} setSelectedCubes={setSelectedCubes}/>
       </div>
       <Overlay mapData={mapData} updateMap={updateMap}/>
     </div> 
