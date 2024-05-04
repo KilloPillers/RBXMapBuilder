@@ -17,9 +17,10 @@
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  padding-top: 10px;
+  opacity: 0.75;
   height: 100%;
-  width: 100px;
+  width: 50px;
 }
 
 .drawer-menu-container:hover {
@@ -33,7 +34,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f8f9fa;
+  background-color: #303030;
   opacity: 0.75;
   height: 100%;
   width: 30vw;

@@ -5,6 +5,8 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import { ThemeProvider } from '@mui/material/styles';
+import { MenuTheme } from '../Themes/MenuTheme';
 import { open } from '@tauri-apps/api/dialog';
 import { appDir } from '@tauri-apps/api/path';
 import { readTextFile } from '@tauri-apps/api/fs';
@@ -37,20 +39,26 @@ export default function ActionDial({ mapData, updateMap }) {
   }
 
   return (
-    <SpeedDial
-      ariaLabel="SpeedDial"
-      sx={{ position: 'absolute', bottom: 16, left: 16 }}
-      icon={<SpeedDialIcon />}
-    >
-      {actions.map((action) => (
-        <SpeedDialAction
-          key={action.name}
-          icon={action.icon}
-          tooltipTitle={action.name}
-          onClick={action.onClick}
-        />
-      ))}
-    </SpeedDial>
+    <ThemeProvider theme={MenuTheme}>
+      <SpeedDial
+        ariaLabel="SpeedDial"
+        sx={{ position: 'absolute',
+              bottom: 16, 
+              left: 16,
+        }}
+        icon={<SpeedDialIcon />}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            color={'#5F5F5F'}
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={action.onClick}
+          />
+        ))}
+      </SpeedDial>
+    </ThemeProvider>
   );
 }
 
