@@ -38,10 +38,13 @@ body {
   position: absolute;
   width: 100%; /* Cover the full width of the parent */
   height: 100%; /* Cover 10% of the height of the parent */
-  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white overlay */
   display: flex;
   justify-content: center;
   align-items: center;
   color: #000; /* Adjust text color as needed */
-  /* Add more styles for your overlay content as needed */
+  z-index: 100; /* Place the overlay on top of the parent */
+}
+
+.overlay .drawer-menu-container {
+  pointer-events: all; /* Make the overlay content interactive */
 }

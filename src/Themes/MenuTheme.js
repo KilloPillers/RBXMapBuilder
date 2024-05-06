@@ -23,6 +23,30 @@ export const MenuTheme = createMuiTheme({
       dark: 'rgba(171, 0, 60)',
       contrastText: '#FFFFFF'
     },
+    error: {
+      main: '#f44336',
+      light: 'rgba(229, 115, 115)',
+      dark: 'rgba(211, 47, 47)',
+      contrastText: '#FFFFFF'
+    },
+    warning: {
+      main: '#ff9800',
+      light: 'rgba(255, 167, 38)',
+      dark: 'rgba(200, 135, 0)',
+      contrastText: '#FFFFFF'
+    },
+    info: {
+      main: '#2196f3',
+      light: 'rgba(77, 208, 225)',
+      dark: 'rgba(0, 145, 234)',
+      contrastText: '#FFFFFF'
+    },
+    success: {
+      main: '#4caf50',
+      light: 'rgba(111, 191, 115)',
+      dark: 'rgba(53, 122, 56)',
+      contrastText: '#FFFFFF'
+    },
     divider: 'rgba(255, 255, 255, 0.12)',
   },
 });

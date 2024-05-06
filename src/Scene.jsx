@@ -158,8 +158,6 @@ function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
 
     // Add Click event listener to window
     const onCanvasClick = (event) => {
-      event.preventDefault();
-      
       // Calculate mouse position in normalized device coordinates
       // (-1 to +1) for both components
       mouse.x = ( (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;

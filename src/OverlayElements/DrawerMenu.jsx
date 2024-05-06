@@ -7,13 +7,18 @@ import { MenuTheme } from '../Themes/MenuTheme';
 import Divider from '@mui/material/Divider';
 import './DrawerMenu.css';
 
+import TileConfig from './TileConfig';
+
 import { IconButton } from '@mui/material';
 import GridViewIcon from '@mui/icons-material/GridView';
 import PeopleIcon from '@mui/icons-material/People';
 import CodeIcon from '@mui/icons-material/Code';
+import LayersIcon from '@mui/icons-material/Layers';
+import UnitConfig from './UnitConfig';
 
 export default function DrawerMenu({ mapData, updateMap }) {
-  const [open, setOpen] = useState(false);  
+  const [open, setOpen] = useState(false); 
+  const [menu, setMenu] = useState('unit-config'); // ['unit-config', 'tile-config'
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -28,16 +33,18 @@ export default function DrawerMenu({ mapData, updateMap }) {
         <Box className="drawer-menu-side-panel">
           <Paper>
             <IconButton 
-            children={<GridViewIcon/>}
-            color='primary'>
-            </IconButton>
+              children={<GridViewIcon/>}
+              color='primary'
+              onClick={() => setMenu('tile-config')}
+            />
           </Paper>
           <Divider />
           <Paper>
             <IconButton 
               children={<PeopleIcon/>}
-              color='primary'>
-            </IconButton>
+              color='primary'
+              onClick={() => setMenu('unit-config')}
+            />
           </Paper>
           <Divider />
           <Paper>
@@ -46,17 +53,23 @@ export default function DrawerMenu({ mapData, updateMap }) {
               color='primary'>
             </IconButton>
           </Paper>
+          <Divider />
+          <Paper>
+            <IconButton 
+              children={<LayersIcon/>}
+              color='primary'>
+            </IconButton>
+          </Paper>
         </Box>
         <Box
           className="drawer-menu"
         >
-          <h2>Menu</h2>
-          <Divider />
-          <h3>Map Settings</h3>
-          <p>Width: {mapData.width}</p>
-          <p>Height: {mapData.height}</p>
-          <Divider />
-          <h3>Map Actions</h3>
+          {menu === 'unit-config' && 
+            <UnitConfig mapData={mapData} updateMap={updateMap} />
+          }
+          {menu === 'tile-config' && 
+            <TileConfig mapData={mapData} updateMap={updateMap} />
+          }
         </Box>
       </Box>
     </ThemeProvider>
