@@ -53,8 +53,9 @@
 .drawer-menu-tile-config {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   width: 100%;
 }
@@ -92,7 +93,8 @@
   display: flex;
   margin-bottom: 20px;
   overflow-y: scroll;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   align-content: flex-start;

@@ -33,7 +33,7 @@ export default function UnitConfig({ mapData, updateMap }) {
               label="Unit Name"
               variant="outlined"
               defaultValue=""
-/>
+            />
             <TextField
               id="unit-level"
               label="Unit Level"
