@@ -16,7 +16,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import LayersIcon from '@mui/icons-material/Layers';
 import UnitConfig from './UnitConfig';
 
-export default function DrawerMenu({ mapData, updateMap }) {
+export default function DrawerMenu({ mapData, updateMap, selectedCubes }) {
   const [open, setOpen] = useState(false); 
   const [menu, setMenu] = useState('unit-config'); // ['unit-config', 'tile-config'
   const toggleDrawer = () => {
@@ -65,10 +65,10 @@ export default function DrawerMenu({ mapData, updateMap }) {
           className="drawer-menu"
         >
           {menu === 'unit-config' && 
-            <UnitConfig mapData={mapData} updateMap={updateMap} />
+            <UnitConfig mapData={mapData} updateMap={updateMap} selectedCubes={selectedCubes} />
           }
           {menu === 'tile-config' && 
-            <TileConfig mapData={mapData} updateMap={updateMap} />
+            <TileConfig mapData={mapData} updateMap={updateMap} selectedCubes={selectedCubes} />
           }
         </Box>
       </Box>

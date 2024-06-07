@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
+import Tile from './Models/Tile';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
@@ -7,11 +8,12 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 
-function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
+function MapScene({ mapData, selectedCubes, setSelectedCubes })  {
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
   const sceneRef = useRef();
+  const cubesRef = useRef([]);
   // Create a raycaster and mouse vector
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -165,11 +167,10 @@ function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
 
       // Update the picking ray with the camera and mouse position
       raycaster.setFromCamera(mouse, camera);
-
       // Calculate objects intersecting the picking ray
-      const intersects = raycaster.intersectObjects(cubes).filter(intersect => intersect.object instanceof THREE.Mesh);
+      const intersects = raycaster.intersectObjects(scene.children, true); 
       if (intersects.length > 0) {
-        const selectedObject = intersects[0].object;
+        const selectedObject = intersects[0].object.userData.tile;
         if (event.type === 'mousedown') {
           cameraPositionOnButtonDown = camera.position.clone();
         }
@@ -180,14 +181,18 @@ function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
           return;
         }
         if (event.type === 'mouseup') {
-          // If the cube is already selected, deselect it
-          // Otherwise, select it
-          if (bloomLayer.test(selectedObject.layers)) {
-            setSelectedCubes(selectedCubes.filter(cube => cube !== selectedObject));
-          } else {
-            setSelectedCubes([...selectedCubes, selectedObject]);
-          }
-          selectedObject.layers.toggle(BLOOM_SCENE);
+          setSelectedCubes((prevSelectedCubes) => {
+            if (prevSelectedCubes.includes(selectedObject)) {
+              selectedObject.is_selected = false;
+              selectedObject.updateColor();
+              return prevSelectedCubes.filter(cube => cube !== selectedObject);
+            } else {
+              selectedObject.is_selected = true;
+              selectedObject.updateColor();
+              return [...prevSelectedCubes, selectedObject];
+            }
+          });
+          intersects[0].object.layers.toggle(BLOOM_SCENE);
           cameraPositionOnButtonDown = new THREE.Vector3();
           cameraPositionOnButtonUp = new THREE.Vector3();
         }
@@ -221,40 +226,36 @@ function MapScene({ mapData, selectedCubes, setSelectedCubes }) {
 
     if (!scene || !map) return;
     // Update the cube heights based on the map data
+    cubesRef.current.forEach(cube => scene.remove(cube.cube));
+    cubesRef.current = [];
     const spacing = 1.00;
+    
+    if (mapData.ButtonGrid === "empty") {
+          console.log("Empty map");
+          return;
+    }
 
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
-        // Create a cube        
-        const geometry = new THREE.BoxGeometry();
-        
-        // Scale the cubes' height based on the map values
-        const cubeHeight = (map !== "empty" ? map[j][i].tile_height : 1);
-        geometry.scale(1, cubeHeight, 1);
-        geometry.translate(0, cubeHeight/2, 0);
-
-        const material = new THREE.MeshMatcapMaterial({
-          color: 0x00ff00, 
-        });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.name = `cube-${i}-${j}`;
-  
-        cube.position.x = (i - Math.floor(width / 2)) * spacing;
-        cube.position.z = (j - Math.floor(height / 2)) * spacing; 
-        cubes.push(cube);
-        scene.add(cube);
+        // Create a cube
+        const tileData = mapData.ButtonGrid[i][j]; 
+        const cube = new Tile(tileData);
+        cube.updatePosition((i - Math.floor(width / 2)) * spacing, (j - Math.floor(height / 2)) * spacing);
+        cube.updateHeight(tileData.tile_height);
+        cube.updateColor();
+        cubesRef.current.push(cube);
+        scene.add(cube.cube);
       }
     }
     
     return () => {
       // Remove the old cubes from the scene
-      scene.children = scene.children.filter((child) => !child.isMesh);
+      cubesRef.current.forEach(cube => scene.remove(cube.cube));
+      cubesRef.current = [];
     }
-  }, [mapData]);
+  }, [mapData]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
 
   return <div ref={containerRef} />;
 }
 
 export default MapScene;
-
-

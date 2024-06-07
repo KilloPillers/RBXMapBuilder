@@ -2,13 +2,8 @@ import React from "react";
 import { useState } from "react";
 import MapScene from "./Scene.jsx";
 import Overlay from "./Overlay.jsx";
+import emptyMap from "./testMap";
 import "./App.css";
-
- const emptyMap = {
-    width: 10,
-    height: 10,
-    ButtonGrid: "empty"
-};
 
 function App() {
   const [mapData, setMapData] = useState(emptyMap);
@@ -23,7 +18,7 @@ function App() {
       <div className="scene">
         <MapScene mapData={mapData} selectedCubes={selectedCubes} setSelectedCubes={setSelectedCubes}/>
       </div>
-      <Overlay mapData={mapData} updateMap={updateMap}/>
+      <Overlay mapData={mapData} updateMap={updateMap} selectedCubes={selectedCubes}/>
     </div> 
   );
 }

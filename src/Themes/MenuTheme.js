@@ -1,6 +1,6 @@
-import { createMuiTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 
-export const MenuTheme = createMuiTheme({
+export const MenuTheme = createTheme({
   palette: {
     background: {
       default: '#121212',

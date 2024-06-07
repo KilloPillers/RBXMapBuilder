@@ -13,13 +13,18 @@ import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import "./DrawerMenu.css"
 
-export default function TileConfig({ mapData, updateMap }) {
+export default function TileConfig({ mapData, updateMap, selectedCubes }) {
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
     }
   }
-
+  const handleChange = (event, newValue) => {
+    console.log(newValue);
+    for (let i = 0; i < selectedCubes.length; i++) {
+      selectedCubes[i].updateHeight(newValue);
+    }
+  };
 
   return (
     <ThemeProvider theme={MenuTheme}>
@@ -43,7 +48,9 @@ export default function TileConfig({ mapData, updateMap }) {
                 defaultValue={30}
                 aria-label="Temperature"
                 valueLabelDisplay="auto"
+                onChange={handleChange}
                 onKeyDown={preventHorizontalKeyboardNavigation}
+                
               />
               <Typography id="vertical-slider" gutterBottom fontSize={10}>
                 Height
