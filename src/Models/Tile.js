@@ -34,14 +34,24 @@ export default class Tile extends THREE.Object3D {
 			scaleFactor: dataJSON.tile_height ,
 		};
 		this.geometry = new THREE.BoxGeometry();
-		this.cube = init(this.geometry, THREE.Mesh, THREE.ShaderMaterial, THREE.Float32BufferAttribute, this.config); 
+		this.cube = init(this.geometry, THREE.Mesh, THREE.ShaderMaterial, THREE.Float32BufferAttribute, this.config);
+		
+		// Set the scale and position of the cube.
+		//
+		//this.cube.position.y = dataJSON.tile_height/2;
+		//this.cube.scale.set(1, dataJSON.tile_height, 1);
+		
 		this.cube.userData.tile = this;
 	}
 
 	updateHeight(height) {
-		this.cube.geometry.scale(1, height, 1);
-		this.cube.geometry.translate(0, height/2, 0);
+
+		//this.cube.geometry.scale(1, 1/this.cube.scale.y, 1);
+		this.cube.scale.y = height;
+		this.cube.position.y = height/2;
+		//this.cube.geometry.translate(0, height/2, 0);
 		
+		this.dataJSON.tile_height = height;
 		if (this.cube && this.cube.material && this.cube.material.uniforms) {
 		    this.cube.material.uniforms.scaleFactor.value = height;
 		} else {

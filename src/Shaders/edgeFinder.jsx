@@ -78,7 +78,7 @@ void main() {
 	vec4 bg = invert ? _fg : _bg;
 	vec4 fg = invert ? _bg : _fg;
 
-        vec2 adjustedFact = fact / scaleFactor;
+        vec2 adjustedFact = fact / 1.0;
 
 	if(mode == 0) {
 
@@ -315,7 +315,7 @@ const init = (_geo, Mesh, ShaderMaterial, Float32BufferAttribute, config, derr =
 	uni._fact = { value: [0, 0] };
 	Object.defineProperty(uni, 'fact', {
 		get: function () {
-			const w = config.width;
+			const w = config.width/config.scaleFactor;
 			const val = this._fact.value;
 			if (val[0] != w) {
 				val[0] = w;

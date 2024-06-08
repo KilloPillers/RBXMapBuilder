@@ -11,20 +11,49 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import IconButton from '@mui/material/IconButton';
 import "./DrawerMenu.css"
 
+
+
+const buttons = [
+  
+];
+
 export default function TileConfig({ mapData, updateMap, selectedCubes }) {
+  const [maxHeight, setMaxHeight] = React.useState(10);
+  const [minHeight, setMinHeight] = React.useState(-1);
+
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
     }
   }
   const handleChange = (event, newValue) => {
-    console.log(newValue);
     for (let i = 0; i < selectedCubes.length; i++) {
       selectedCubes[i].updateHeight(newValue);
     }
   };
+  
+  const handleChangeMaxHeight = (amount) => {
+    if (maxHeight + amount < minHeight) {
+      return;
+    }
+    setMaxHeight(maxHeight + amount);
+  };
+
+  const handleChangeMinHeight = (amount) => {
+    if (minHeight + amount > maxHeight) {
+      return;
+    }
+    setMinHeight(minHeight + amount);
+  }
 
   return (
     <ThemeProvider theme={MenuTheme}>
@@ -36,7 +65,16 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
         </Paper>
       </Box>
       <Box className='drawer-menu-tile-config'>
-          <Box>
+          <Box className='drawer-menu-height'>
+            <Paper>
+              <ButtonGroup className="drawer-menu-slider-config" size="small" aria-label="Small button group">
+                <IconButton key="left2" color="primary" onClick={()=>handleChangeMaxHeight(-5)}> <KeyboardDoubleArrowLeftIcon /> </IconButton>
+                <IconButton key="left1" color="primary" onClick={()=>handleChangeMaxHeight(-1)}> <KeyboardArrowLeftIcon /> </IconButton> 
+                <Typography>Max: {maxHeight}</Typography>
+                <IconButton key="right1" color="primary" onClick={()=>handleChangeMaxHeight(1)}> <KeyboardArrowRightIcon /> </IconButton>
+                <IconButton key="right2" color="primary" onClick={()=>handleChangeMaxHeight(5)}> <KeyboardDoubleArrowRightIcon /> </IconButton>
+              </ButtonGroup>
+            </Paper>
             <Paper className='drawer-menu-height-slider'>
               <Slider
                 sx={{
@@ -45,16 +83,26 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
                   },
                 }}
                 orientation="vertical"
-                defaultValue={30}
-                aria-label="Temperature"
+                min={minHeight}
+                max={maxHeight}
+                defaultValue={1}
+                aria-label="Tile Height"
                 valueLabelDisplay="auto"
                 onChange={handleChange}
                 onKeyDown={preventHorizontalKeyboardNavigation}
-                
               />
               <Typography id="vertical-slider" gutterBottom fontSize={10}>
                 Height
               </Typography>
+            </Paper>
+            <Paper>
+              <ButtonGroup className="drawer-menu-slider-config" size="small" aria-label="Small button group">
+                <IconButton key="left2" color="primary" onClick={()=>handleChangeMinHeight(-5)}> <KeyboardDoubleArrowLeftIcon /> </IconButton>
+                <IconButton key="left1" color="primary" onClick={()=>handleChangeMinHeight(-1)}> <KeyboardArrowLeftIcon /> </IconButton> 
+                <Typography>Min: {minHeight}</Typography>
+                <IconButton key="right1" color="primary" onClick={()=>handleChangeMinHeight(1)}> <KeyboardArrowRightIcon /> </IconButton>
+                <IconButton key="right2" color="primary" onClick={()=>handleChangeMinHeight(5)}> <KeyboardDoubleArrowRightIcon /> </IconButton>
+              </ButtonGroup>
             </Paper>
           </Box>
           <Box>
