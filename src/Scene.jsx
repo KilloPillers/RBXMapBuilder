@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import * as THREE from 'three';
 import Tile from './Models/Tile';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -7,8 +7,10 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { MyContext } from './MyContext';
 
-function MapScene({ mapData, selectedCubes, setSelectedCubes })  {
+function MapScene() {
+  const { mapData, selectedCubes, setSelectedCubes, drawerOpen } = useContext(MyContext); 
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
@@ -238,7 +240,7 @@ function MapScene({ mapData, selectedCubes, setSelectedCubes })  {
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         // Create a cube
-        const tileData = mapData.ButtonGrid[i][j]; 
+        const tileData = map[i][j]; 
         const cube = new Tile(tileData);
         cube.updatePosition((i - Math.floor(width / 2)) * spacing, (j - Math.floor(height / 2)) * spacing);
         cube.updateHeight(tileData.tile_height);
