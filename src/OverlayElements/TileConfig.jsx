@@ -1,4 +1,7 @@
 import * as React from "react";
+import { useState } from "react";
+import { useEffect } from "react";
+import { MyContext } from "../MyContext"
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
 import { MenuTheme } from "../Themes/MenuTheme";
@@ -20,13 +23,42 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import IconButton from "@mui/material/IconButton";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import "./DrawerMenu.css";
 
 const buttons = [];
 
-export default function TileConfig({ mapData, updateMap, selectedCubes }) {
+export default function TileConfig() {
+  const { selectedCubes } = React.useContext(MyContext);
+  const [decimalHeight, setDecimalHeight] = React.useState(0);
+  const [oldHeight, setOldHeight] = React.useState(1);
+  const [height, setHeight] = React.useState(1);
   const [maxHeight, setMaxHeight] = React.useState(10);
   const [minHeight, setMinHeight] = React.useState(-1);
+  const [mode, setMode] = React.useState("uniform");
+
+  useEffect(() => { 
+    if (selectedCubes.length > 0) {
+      // Find Median Height
+      let totalHeight = 0;
+      for (let i = 0; i < selectedCubes.length; i++) {
+        totalHeight += selectedCubes[i].tileJSON.tile_height;
+      }
+      // Round to 2 decimal places 
+      let medianHeight = Math.round((totalHeight/selectedCubes.length) * 100) / 100; 
+      setHeight(Math.round(medianHeight));
+      // Set decimal height
+      // Round to 2 decimal places
+      let decimalHeight = Math.round((medianHeight - Math.floor(medianHeight)) * 100) / 100;
+      setDecimalHeight(decimalHeight);
+      setOldHeight(medianHeight);
+      setMaxHeight(2*Math.ceil(medianHeight-minHeight));
+    }
+  }, [selectedCubes]);
+
 
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -34,15 +66,37 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
     }
   }
 
-  const handleChange = (event, newValue) => {
-    for (let i = 0; i < selectedCubes.length; i++) {
-      selectedCubes[i].updateHeight(newValue);
+  const handleChangeHeight = (event, newValue) => {
+    // Combine decimal and whole number
+    let newHeight = 0
+    if (event.target.name === "tile-height-decimal") {
+      newHeight = height + newValue;
     }
-  };
+    else if (event.target.name === "tile-height") {
+      newHeight = newValue;
+    }
 
-  const handleChangeHeightDelta = (delta) => {
-    for (let i = 0; i < selectedCubes.length; i++) {
-      selectedCubes[i].updateHeightDelta(delta);
+    if (mode === "discrete") {
+      
+      let delta = newHeight - oldHeight;
+      for (let i = 0; i < selectedCubes.length; i++) {
+        let newHeight = (selectedCubes[i].tileJSON.tile_height + delta);
+        // convert to 2 decimal places
+        newHeight = Math.round(newHeight * 100) / 100;
+        selectedCubes[i].updateHeight(newHeight);
+      }
+    }
+    else {
+      for (let i = 0; i < selectedCubes.length; i++) {
+        selectedCubes[i].updateHeight(newHeight);
+      }
+    }
+    setOldHeight(newHeight);
+    if (event.target.name === "tile-height") {
+      setHeight(newValue);
+    }
+    else if (event.target.name === "tile-height-decimal") {
+      setDecimalHeight(newValue);
     }
   };
 
@@ -123,20 +177,85 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
                   '& input[type="range"]': {
                     WebkitAppearance: "slider-vertical",
                   },
+                  paddingBottom: "20px",
                 }}
                 orientation="vertical"
                 min={minHeight}
                 max={maxHeight}
+                value={height}
+                name="tile-height"
                 defaultValue={1}
                 aria-label="Tile Height"
                 valueLabelDisplay="auto"
-                onChange={handleChange}
+                onChange={(event, newValue) => {
+                  handleChangeHeight(event, newValue);
+                }}
                 onKeyDown={preventHorizontalKeyboardNavigation}
               />
-              <Typography id="vertical-slider" gutterBottom fontSize={10}>
-                Height
+              <Typography 
+                sx={{
+                  paddingTop: "10px",
+                }}
+                id="vertical-slider" gutterBottom fontSize={10}>
+                {height}
               </Typography>
             </Paper>
+            <Paper className="drawer-menu-height-slider">
+              <Slider
+                sx={{
+                  '& input[type="range"]': {
+                    WebkitAppearance: "slider-vertical",
+                  },
+                  paddingBottom: "20px",
+                }}
+                orientation="vertical"
+                min={0}
+                max={.99}
+                value={decimalHeight}
+                name="tile-height-decimal"
+                defaultValue={0}
+                step={.01}
+                aria-label="Tile Height Decimal"
+                valueLabelDisplay="auto"
+                onChange={(event, newValue) => {
+                  handleChangeHeight(event, newValue);
+                }}
+                onKeyDown={preventHorizontalKeyboardNavigation}
+              />
+              <Typography 
+                sx={{
+                  paddingTop: "10px",
+                }}
+                id="vertical-slider" gutterBottom fontSize={10}>
+                {decimalHeight}
+              </Typography>
+            </Paper>
+          <Box>
+              <Box
+                sx={{
+                  height: "125px",
+                  padding: "auto",
+                }}
+              >
+            <ToggleButtonGroup
+              value={mode}
+              exclusive
+              orientation="vertical"
+              onChange={(event, newMode) => setMode(newMode)}
+              aria-label="text alignment"
+            >
+              <ToggleButton value="uniform" aria-label="left aligned">
+                <ViewWeekIcon
+                  color="primary"
+                />
+              </ToggleButton>
+              <ToggleButton value="discrete" aria-label="centered">
+                <BarChartIcon
+                  color="primary"
+                />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
             <Paper>
               <ButtonGroup
                 className="drawer-menu-slider-delta"
@@ -155,7 +274,7 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
                   <IconButton
                     key="left2"
                     color="primary"
-                    onClick={() => handleChangeHeightDelta(1)}
+                    onClick={(event) => handleChangeHeight(event, 1)}
                   >
                     {" "}
                     <KeyboardArrowUpIcon />{" "}
@@ -175,7 +294,7 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
                   <IconButton
                     key="left2"
                     color="primary"
-                    onClick={() => handleChangeHeightDelta(-1)}
+                    onClick={(event) => handleChangeHeight(event, -1)}
                   >
                     {" "}
                     <KeyboardArrowDownIcon />{" "}
@@ -184,6 +303,7 @@ export default function TileConfig({ mapData, updateMap, selectedCubes }) {
                 </Box>
               </ButtonGroup>
             </Paper>
+          </Box>
           </Box>
           <Paper>
             <ButtonGroup
