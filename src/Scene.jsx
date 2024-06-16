@@ -115,7 +115,7 @@ function MapScene() {
     
     // Add a directional light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light, half intensity
-    directionalLight.position.set(0, 10, 0); // Positioned at an angle to the scene
+    directionalLight.position.set(0, 30, 0); // Positioned at an angle to the scene
     scene.add(directionalLight);
 
     // Add an ambient light for soft overall light
@@ -170,9 +170,16 @@ function MapScene() {
       // Update the picking ray with the camera and mouse position
       raycaster.setFromCamera(mouse, camera);
       // Calculate objects intersecting the picking ray
-      const intersects = raycaster.intersectObjects(scene.children, true); 
-      if (intersects.length > 0) {
-        const selectedObject = intersects[0].object.userData.tile;
+      const intersects = raycaster.intersectObjects(scene.children, true);
+
+      // Filter so we only get the Tile objects
+      let tileIntersects = intersects.filter(intersect => {
+        return intersect.object.userData.tile instanceof Tile;
+      });
+      console.log(tileIntersects);
+
+      if (tileIntersects.length > 0) {
+        const selectedObject = tileIntersects[0].object.userData.tile;
         if (event.type === 'mousedown') {
           cameraPositionOnButtonDown = camera.position.clone();
         }
@@ -194,7 +201,7 @@ function MapScene() {
               return [...prevSelectedCubes, selectedObject];
             }
           });
-          intersects[0].object.layers.toggle(BLOOM_SCENE);
+          tileIntersects[0].object.layers.toggle(BLOOM_SCENE);
           cameraPositionOnButtonDown = new THREE.Vector3();
           cameraPositionOnButtonUp = new THREE.Vector3();
         }
@@ -246,7 +253,7 @@ function MapScene() {
         cube.updateHeight(tileData.tile_height);
         cube.updateColor();
         cubesRef.current.push(cube);
-        scene.add(cube.cube);
+        scene.add(cube);
       }
     }
     
