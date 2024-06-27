@@ -1,21 +1,32 @@
 import * as React from 'react';
 import SpeedDial from '@mui/material/SpeedDial';
+import Box from '@mui/material/Box';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import CodeIcon from '@mui/icons-material/Code';
 import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
 import { ThemeProvider } from '@mui/material/styles';
 import { MenuTheme } from '../Themes/MenuTheme';
 import { open } from '@tauri-apps/api/dialog';
 import { appDir } from '@tauri-apps/api/path';
 import { readTextFile } from '@tauri-apps/api/fs';
+import CodePreview from './CodePreview'; 
+import { MyContext } from '../MyContext';
 
 
 
-export default function ActionDial({ mapData, updateMap }) {
+export default function ActionDial() {
+  const { mapData, updateMap } = React.useContext(MyContext);
+  const [open, setOpen] = React.useState(false);
+  const rootRef = React.useRef(null);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   const actions = [
-    { icon: <FileCopyIcon />, name: 'Copy' },
+    { icon: <CodeIcon />, name: 'Code', onClick: handleOpen },
     { icon: <SaveIcon />, name: 'Save' },
     { icon: <FileOpenIcon />, name: 'Open', onClick: openMap },
   ];
@@ -58,7 +69,25 @@ export default function ActionDial({ mapData, updateMap }) {
           />
         ))}
       </SpeedDial>
+      <Fade in={open}>
+        <Modal
+        disablePortal
+        disableEnforceFocus
+        disableAutoFocus
+        open
+        aria-labelledby="server-modal-title"
+        aria-describedby="server-modal-description"
+        sx={{
+          display: 'flex',
+          p: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        container={() => rootRef.current}
+      >
+            <CodePreview/>
+        </Modal>
+      </Fade>
     </ThemeProvider>
   );
 }
-

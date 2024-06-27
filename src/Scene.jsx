@@ -8,14 +8,19 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { MyContext } from './MyContext';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
 function MapScene() {
-  const { mapData, selectedCubes, setSelectedCubes, drawerOpen } = useContext(MyContext); 
+  const { mapData, selectedCubes, setSelectedCubes, drawerOpen } = useContext(MyContext);
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
+  const unitModelRef = useRef();
   const sceneRef = useRef();
   const cubesRef = useRef([]);
+  
+  const [isModelsLoaded, setIsModelsLoaded] = useState(false);
+
   // Create a raycaster and mouse vector
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -30,6 +35,24 @@ function MapScene() {
 
   const cubes = [];
  
+  useEffect(() => {
+    // Load the unit model
+    const loader = new OBJLoader();
+    loader.load('/models/rbxdefaultmodel.obj', function (object) {
+      // Create a group to add to the model to
+      const modelGroup = new THREE.Group();
+      modelGroup.add(object);
+
+      // Apply initial scale and rotation to the model
+      modelGroup.scale.set(.25, .25, .25);
+      modelGroup.rotation.y = Math.PI / 2;
+      unitModelRef.current = modelGroup; 
+      console.log("Unit model loaded");
+    });
+
+    setIsModelsLoaded(true);
+  },[])
+
   useEffect(() => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -176,7 +199,6 @@ function MapScene() {
       let tileIntersects = intersects.filter(intersect => {
         return intersect.object.userData.tile instanceof Tile;
       });
-      console.log(tileIntersects);
 
       if (tileIntersects.length > 0) {
         const selectedObject = tileIntersects[0].object.userData.tile;
@@ -227,6 +249,8 @@ function MapScene() {
   }, []);
 
   useEffect(() => {
+    if (!isModelsLoaded) return;
+
     const scene = sceneRef.current;
     if (!scene) return;
     const width = mapData.width;
@@ -252,6 +276,9 @@ function MapScene() {
         cube.updatePosition((i - Math.floor(width / 2)) * spacing, (j - Math.floor(height / 2)) * spacing);
         cube.updateHeight(tileData.tile_height);
         cube.updateColor();
+        if (tileData.has_unit) {
+          cube.addUnit(unitModelRef.current);
+        }
         cubesRef.current.push(cube);
         scene.add(cube);
       }
@@ -262,7 +289,7 @@ function MapScene() {
       cubesRef.current.forEach(cube => scene.remove(cube.cube));
       cubesRef.current = [];
     }
-  }, [mapData]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
+  }, [mapData, isModelsLoaded]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
 
   return <div ref={containerRef} />;
 }

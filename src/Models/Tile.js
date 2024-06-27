@@ -23,6 +23,7 @@ export default class Tile extends THREE.Object3D {
 		}
 		this.tileJSON = tileJSON;
 		this.is_selected = false;
+		this.has_unit = false; // Flag is set to false initially so that addUnit can be called
 		this.config = {
 			width: 0.05,
 			alpha: true, 
@@ -31,13 +32,14 @@ export default class Tile extends THREE.Object3D {
 			wave: 0, 
 			exp: 1, 
 			dynamicFgColor: DEFAULT_TILE_COLOR,
-			scaleFactor: 1 ,
+			scaleFactor: 1,
 		};
 		this.geometry = new THREE.BoxGeometry();
 		this.cube = init(this.geometry, THREE.Mesh, THREE.ShaderMaterial, THREE.Float32BufferAttribute, this.config);
 		this.cube.userData.tile = this;
 		this.add(this.cube);
 		this.textSprite = null;
+		this.unitModel = null;
 	}
 
 	createTextTexture(text, font = '30px Arial', color = 'white', bgColor = 'transparent') {
@@ -89,6 +91,7 @@ export default class Tile extends THREE.Object3D {
 
 		this.textSprite = this.createTextSprite(height.toString());
 		this.textSprite.position.set(this.cube.position.x, scaledDownHeight+0.5, this.cube.position.z)
+		this.unitModel && this.unitModel.position.set(this.cube.position.x-.75, scaledDownHeight+.5, this.cube.position.z-1.75);
 		this.add(this.textSprite);
 	}
 
@@ -121,5 +124,37 @@ export default class Tile extends THREE.Object3D {
 		this.tileJSON.is_action_tile = !this.tileJSON.is_action_tile;
 		this.updateColor();
 	}
-}
 
+	addUnit(unitModelRef) {
+		if (!unitModelRef) {
+			console.error("Invalid unitModelRef: ", unitModelRef);
+			return;
+		}
+		if (this.has_unit) {
+			console.error("Unit already exists on this tile");
+			return;
+		}
+		this.tileJSON.has_unit = true;
+		this.has_unit = true;
+		const scaledDownHeight = this.tileJSON.tile_height/5;
+		
+		// Clone the model Group 
+		const unitGroup = unitModelRef.clone();
+
+		// Apply translation to the unit group
+		unitGroup.position.set(this.cube.position.x-.75, scaledDownHeight+.5, this.cube.position.z-1.75);
+		
+		this.unitModel = unitGroup;
+		this.add(unitGroup);
+	}
+	
+	removeUnit() {
+		if (!this.tileJSON.has_unit) {
+			console.error("No unit exists on this tile");
+			return;
+		}
+		this.tileJSON.has_unit = false;
+		this.has_unit = false;
+		this.remove(this.children[1]);
+	}
+}
