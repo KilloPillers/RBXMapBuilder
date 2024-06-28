@@ -25,6 +25,10 @@ export default function ActionDial() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const stopPropagation = (e) => {
+    e.stopPropagation();
+  }
+
   const actions = [
     { icon: <CodeIcon />, name: 'Code', onClick: handleOpen },
     { icon: <SaveIcon />, name: 'Save' },
@@ -84,8 +88,11 @@ export default function ActionDial() {
           justifyContent: 'center',
         }}
         container={() => rootRef.current}
+        onMouseUp={(e) => { 
+            stopPropagation(e)
+        }}
       >
-            <CodePreview/>
+          <CodePreview handleClose={handleClose}/>
         </Modal>
       </Fade>
     </ThemeProvider>
