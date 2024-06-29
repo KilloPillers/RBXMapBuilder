@@ -47,13 +47,13 @@ const CodePreview = React.forwardRef((props, ref) => {
       for (let j = 1; j <= mapData.height; j++) {
         console.log('mapData.ButtonGrid[i-1][j-1]:', mapData.ButtonGrid[i-1][j-1])
         if (mapData.ButtonGrid[i-1][j-1].is_deploy_position) {
-          deploy_positions += "table.insert(newmap.deployPositions, Vector2.new(" + j + ", " + i + "));\n";
+          deploy_positions += "table.insert(newmap.deployPositions, Vector2.new(" + i + ", " + j + "))\n";
         }
         if (mapData.ButtonGrid[i-1][j-1].is_action_tile) {
           let tile_name = mapData.ButtonGrid[i-1][j-1].tile_name;
           let event_id = mapData.ButtonGrid[i-1][j-1].event_id;
 
-          action_tiles += "table.insert(newmap.actiontiles, ActionTile.new(" + tile_name + ", " + event_id + ", Vector2.new(" + j + ", " + i + "));\n";
+          action_tiles += "table.insert(newmap.actiontiles, ActionTile.new(\"" + tile_name + "\"," + event_id + ", Vector2.new(" + i + ", " + j + ")))\n";
         }
         if (mapData.ButtonGrid[i-1][j-1].has_unit) {
           let unit_tile = mapData.ButtonGrid[i-1][j-1];
@@ -61,12 +61,12 @@ const CodePreview = React.forwardRef((props, ref) => {
         }
         map_code += mapData.ButtonGrid[i-1][j-1].tile_height
         if (j < mapData.height) {
-          map_code += ", ";
+          map_code += ",";
         }
       }
-      map_code += "};\n"; 
+      map_code += "}\n"; 
     }
-    map_code += "local newmap = GameMap.new(newheights, mapXSize, mapYSize);\n";
+    map_code += "local newmap = GameMap.new(newheights, mapXSize, mapYSize)\n";
     map_code += deploy_positions;
     map_code += action_tiles;   
     
@@ -83,17 +83,17 @@ const CodePreview = React.forwardRef((props, ref) => {
       let unit_tile = unit_tiles[i];
       console.log('unit_tile:', unit_tiles[i]);
       let unit = unit_tile.unit;
-      let position = "(" + unit_tile.tile_position[0]+1 + ", " + unit_tile.tile_position[1]+1 + ")";
-      unit_code += unit_id_pos.replace('{}', unit.classId)
-      .replace('{}', unit.unitId)
+      let position = "(" + (unit_tile.tile_position[0] + 1) + ", " + (unit_tile.tile_position[1] + 1) + ")";
+      unit_code += unit_id_pos.replace('{}', unit.classID)
+      .replace('{}', unit.unitID)
       .replace('{}', position); 
 
       unit_code += tablecode;
 
       unit_code += unit_stats.replace('{}', unit.unitLevel)
-      .replace('{}', unit.maxHp)
-      .replace('{}', unit.maxHp)
-      .replace('{}', unit.maxSp)
+      .replace('{}', unit.maxHP)
+      .replace('{}', unit.maxHP)
+      .replace('{}', unit.maxSP)
       .replace('{}', unit.maxSP)
       .replace('{}', unit.Atk)
       .replace('{}', unit.Def)
@@ -106,12 +106,22 @@ const CodePreview = React.forwardRef((props, ref) => {
       
       for (let j = 0; j < unit.skills.length; j++) {
         if (unit.skills[j] !== "") {
-          unit_code += "table.insert(enemyUnit.skills, " + unit.skills[j] + ");\n"; 
+          unit_code += "table.insert(enemyUnit.skills," + unit.skills[j] + ")\n"; 
         }
       }
-        unit_code += "\n";
-        unit_code += footer.replace('{}', unit.personality).replace('{}', unit.deathEvent);
+      
+      unit_code += "\n";
+
+      for (let k = 0; k < unit.passives.length; k++) {
+        if (unit.passives[k] !== "") {
+          unit_code += "table.insert(enemyUnit.passives," + unit.passives[k] + ")\n";
+        }
+      }
+
+      unit_code += "\n";
+      unit_code += footer.replace('{}', unit.personality).replace('{}', unit.deathEvent);
     }
+
     setUnitCode(unit_code);
     setMapCode(map_code);
   }
