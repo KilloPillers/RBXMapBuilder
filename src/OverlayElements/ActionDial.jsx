@@ -11,7 +11,9 @@ import Fade from '@mui/material/Fade';
 import { ThemeProvider } from '@mui/material/styles';
 import { MenuTheme } from '../Themes/MenuTheme';
 import { open } from '@tauri-apps/api/dialog';
+import { save } from '@tauri-apps/api/dialog';
 import { appDir } from '@tauri-apps/api/path';
+import { writeTextFile } from '@tauri-apps/api/fs';
 import { readTextFile } from '@tauri-apps/api/fs';
 import CodePreview from './CodePreview'; 
 import { MyContext } from '../MyContext';
@@ -20,7 +22,7 @@ import { MyContext } from '../MyContext';
 
 export default function ActionDial() {
   const { mapData, updateMap } = React.useContext(MyContext);
-  const [open, setOpen] = React.useState(false);
+  const [openDial, setOpenDial] = React.useState(false);
   const rootRef = React.useRef(null);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -31,7 +33,7 @@ export default function ActionDial() {
 
   const actions = [
     { icon: <CodeIcon />, name: 'Code', onClick: handleOpen },
-    { icon: <SaveIcon />, name: 'Save' },
+    { icon: <SaveIcon />, name: 'Save', onClick: handleSave },
     { icon: <FileOpenIcon />, name: 'Open', onClick: openMap },
   ];
 
@@ -48,6 +50,24 @@ export default function ActionDial() {
       const fileContent = await readTextFile(filePath);
       const jsonData = JSON.parse(fileContent);
       updateMap(jsonData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function handleSave() {
+    try {
+      const defaultPath = `${await appDir()}/untitled.json`;
+      const filePath = await save({
+        defaultPath: defaultPath, 
+        description: 'Save Map File',
+        filters: [{ name: 'Map File', extensions: ['json'] }] 
+      });
+      if (filePath === undefined) {
+        return;
+      }
+      const jsonData = JSON.stringify(mapData);
+      await writeTextFile(filePath, jsonData);
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +93,7 @@ export default function ActionDial() {
           />
         ))}
       </SpeedDial>
-      <Fade in={open}>
+      <Fade in={openDial}>
         <Modal
         disablePortal
         disableEnforceFocus

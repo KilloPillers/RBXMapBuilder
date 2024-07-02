@@ -228,6 +228,21 @@ function MapScene() {
   }, []);
 
   useEffect(() => {
+    // Remove the old cubes from the scene
+    const disposeObject = (object) => {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => material.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+      sceneRef.current.remove(object);
+    }; 
+
     if (!isModelsLoaded) return;
 
     const scene = sceneRef.current;
@@ -265,7 +280,7 @@ function MapScene() {
     
     return () => {
       // Remove the old cubes from the scene
-      cubesRef.current.forEach(cube => scene.remove(cube.cube));
+      cubesRef.current.forEach(cube => disposeObject(cube));
       cubesRef.current = [];
     }
   }, [mapData, isModelsLoaded]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
