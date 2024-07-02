@@ -131,7 +131,7 @@ export default class Tile extends THREE.Object3D {
 			return;
 		}
 		if (this.has_unit) {
-			console.error("Unit already exists on this tile");
+			// Unit already exists on this tile do nothing
 			return;
 		}
 		this.tileJSON.has_unit = true;
@@ -145,16 +145,20 @@ export default class Tile extends THREE.Object3D {
 		unitGroup.position.set(this.cube.position.x-.75, scaledDownHeight+.5, this.cube.position.z-1.75);
 		
 		this.unitModel = unitGroup;
+		unitGroup.name = "unitModel"
 		this.add(unitGroup);
 	}
 	
 	removeUnit() {
 		if (!this.tileJSON.has_unit) {
-			console.error("No unit exists on this tile");
+			// Unit does not exist on this tile do nothing
 			return;
 		}
 		this.tileJSON.has_unit = false;
 		this.has_unit = false;
-		this.remove(this.children[1]);
+		const unit = this.getObjectByName("unitModel");
+		if (unit) {
+			this.remove(unit);
+		}
 	}
 }
