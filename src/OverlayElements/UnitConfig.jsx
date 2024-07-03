@@ -47,7 +47,8 @@ export default function UnitConfig() {
   const unitLevelRef = useRef(null);
   const classIdRef = useRef(null);
   const unitIdRef = useRef(null);
-  const deathEventRef = useRef(null);
+  const personalityRef = useRef("RandomAction")
+  const deathEventRef = useRef("nil");
   const maxHpRef = useRef(null);
   const maxSpRef = useRef(null);
   const unitAtkRef = useRef(null);
@@ -79,6 +80,7 @@ export default function UnitConfig() {
       unitLevel: unitLevelRef.current.value,
       classId: classIdRef.current.value,
       unitId: unitIdRef.current.value,
+      personality: personalityRef.current,
       deathEvent: deathEventRef.current.value,
       maxHp: maxHpRef.current.value,
       maxSp: maxSpRef.current.value,
@@ -160,10 +162,17 @@ export default function UnitConfig() {
               inputRef={unitIdRef}
             />
             <TextField
+              id="personality"
+              label="Personality"
+              variant="outlined"
+              defaultValue="RandomAction"
+              inputRef={personalityRef}
+            />
+            <TextField
               id="death-event"
               label="Death Event"
               variant="outlined"
-              defaultValue=""
+              defaultValue="nil"
               inputRef={deathEventRef}
             />
           </FormGroup>
