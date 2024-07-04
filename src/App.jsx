@@ -17,7 +17,8 @@ function App() {
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [selectedCubes, setSelectedCubes] = useState([]);
   const unitModelRef = React.useRef();
-  const [tool, setTool] = React.useState('left');
+  const [tool, setTool] = React.useState('inspect');
+  const [inspectedTile, setInspectedTile] = React.useState(null);
   
   const updateMap = (newMapData) => {
     setMapData(newMapData);
@@ -52,7 +53,9 @@ function App() {
         isModelsLoaded,
         unitModelRef,
         tool,
-        setTool
+        setTool,
+        inspectedTile,
+        setInspectedTile
     }}>
       <div className="app">
         <div className="scene">

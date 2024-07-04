@@ -9,6 +9,7 @@ import { init } from '../Shaders/edgeFinder'
 
 const ACTION_TILE_COLOR = new THREE.Vector4(1, 0, 0, 1);
 const DEPLOY_TILE_COLOR = new THREE.Vector4(0, 0, 1, 1);
+const INSPECTED_TILE_COLOR = new THREE.Vector4(1, 165/255, 0, 1);
 // Grey
 const DEFAULT_TILE_COLOR = new THREE.Vector4(0.5, 0.5, 0.5, 1); 
 
@@ -23,6 +24,7 @@ export default class Tile extends THREE.Object3D {
 		}
 		this.tileJSON = tileJSON;
 		this.is_selected = false;
+		this.is_inspected = false;
 		this.has_unit = false; // Flag is set to false initially so that addUnit can be called
 		this.config = {
 			width: 0.05,
@@ -40,6 +42,10 @@ export default class Tile extends THREE.Object3D {
 		this.add(this.cube);
 		this.textSprite = null;
 		this.unitModel = null;
+	}
+
+	getMesh() {
+		return this.cube;
 	}
 
 	createTextTexture(text, font = '30px Arial', color = 'white', bgColor = 'transparent') {
@@ -102,7 +108,10 @@ export default class Tile extends THREE.Object3D {
 
 	updateColor() {
 		let colorHex;
-		if (this.tileJSON.is_action_tile) {
+		
+		if (this.is_inspected) {
+			colorHex = INSPECTED_TILE_COLOR; 
+		} else if (this.tileJSON.is_action_tile) {
 			colorHex = ACTION_TILE_COLOR;
 		} else if (this.tileJSON.is_deploy_position) {
 			colorHex = DEPLOY_TILE_COLOR;

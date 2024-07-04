@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, { useRef, useEffect, useState, useContext, useCallback } from 'react';
 import * as THREE from 'three';
 import Tile from './Models/Tile';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -10,12 +10,24 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { MyContext } from './MyContext';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
+const BLOOM_SCENE = 1;
+
 function MapScene() {
-  const { mapData, selectedCubes, setSelectedCubes, drawerOpen, isModelsLoaded, unitModelRef } = useContext(MyContext); 
+  const { mapData, 
+    selectedCubes, 
+    setSelectedCubes, 
+    drawerOpen, 
+    isModelsLoaded, 
+    unitModelRef, 
+    tool,  
+    inspectedTile,
+    setInspectedTile
+  } = useContext(MyContext); 
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
   const sceneRef = useRef();
+  const cameraRef = useRef();
   const cubesRef = useRef([]);
   
   // Create a raycaster and mouse vector
@@ -31,11 +43,99 @@ function MapScene() {
   var cameraPositionOnButtonUp = new THREE.Vector3();
 
   const cubes = [];
- 
+
+  // Add Click event listener to window
+  const onCanvasClick = useCallback((event) => {
+    // Calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+    mouse.x = ( (event.clientX - rendererRef.current.domElement.offsetLeft) / rendererRef.current.domElement.width ) * 2 - 1;
+    mouse.y = -( (event.clientY - rendererRef.current.domElement.offsetTop) / rendererRef.current.domElement.height ) * 2 + 1;
+
+    // Update the picking ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, cameraRef.current);
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(sceneRef.current.children, true);
+
+    // Filter so we only get the Tile objects
+    let tileIntersects = intersects.filter(intersect => {
+      return intersect.object.userData.tile instanceof Tile;
+    });
+
+    if (tileIntersects.length > 0) {
+      const selectedObject = tileIntersects[0].object.userData.tile;
+      if (event.type === 'mousedown') {
+        cameraPositionOnButtonDown = cameraRef.current.position.clone();
+      }
+      if (event.type === 'mouseup') {
+        cameraPositionOnButtonUp = cameraRef.current.position.clone();
+      }
+      if (!cameraPositionOnButtonDown.equals(cameraPositionOnButtonUp)) {
+        return;
+      }
+      if (event.type === 'mouseup') {
+        if (tool === 'inspect') {
+          // Check if the tile is already inspected
+          if (inspectedTile === selectedObject) {
+            setInspectedTile(null);
+            selectedObject.is_inspected = false;
+            selectedObject.getMesh().layers.disable(BLOOM_SCENE);
+            if (selectedObject !== inspectedTile) {
+              selectedObject.getMesh().layers.disable(BLOOM_SCENE);
+            }
+          } else {
+            if (inspectedTile) {
+              inspectedTile.is_inspected = false;
+              inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
+              inspectedTile.updateColor();
+            }
+            setInspectedTile(selectedObject);
+            selectedObject.getMesh().layers.enable(BLOOM_SCENE);
+            selectedObject.is_inspected = true;
+          }
+          selectedObject.updateColor();
+        }
+        
+        if (tool === 'select') {
+          setSelectedCubes((prevSelectedCubes) => {
+            if (prevSelectedCubes.includes(selectedObject)) {
+              selectedObject.is_selected = false;
+              selectedObject.updateColor();
+              if (inspectedTile !== selectedObject) {
+                tileIntersects[0].object.layers.disable(BLOOM_SCENE);
+              }
+              return prevSelectedCubes.filter(cube => cube !== selectedObject);
+            } else {
+              selectedObject.is_selected = true;
+              tileIntersects[0].object.layers.enable(BLOOM_SCENE);
+              selectedObject.updateColor();
+              return [...prevSelectedCubes, selectedObject];
+            }
+          });
+          }
+          cameraPositionOnButtonDown = new THREE.Vector3();
+          cameraPositionOnButtonUp = new THREE.Vector3();
+      }
+    }
+  }, [tool, inspectedTile]); 
+
+  
+  useEffect(() => {
+    window.addEventListener('mousedown', onCanvasClick);
+    window.addEventListener('mouseup', onCanvasClick);
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener('mousedown', onCanvasClick);
+      window.removeEventListener('mouseup', onCanvasClick);
+    };
+  }, [tool, inspectedTile]);
+  
+
+
   useEffect(() => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    cameraRef.current = camera;
     
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -87,7 +187,6 @@ function MapScene() {
     finalComposer.addPass(mixPass);
     finalComposer.addPass(outputPass);
 
-    const BLOOM_SCENE = 1;
     const bloomLayer = new THREE.Layers();
     bloomLayer.set(BLOOM_SCENE);
     const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
@@ -113,8 +212,6 @@ function MapScene() {
       container.appendChild(renderer.domElement);
     }
 
-    rendererRef.current = renderer;
-    
     // Add a directional light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light, half intensity
     directionalLight.position.set(0, 30, 0); // Positioned at an angle to the scene
@@ -134,18 +231,15 @@ function MapScene() {
     controls.target = target;
 
     const render = function () {
-
       scene.traverse(nonBloom);
       bloomComposer.render();
       scene.traverse(restoreMaterial);
       finalComposer.render();
-
       requestAnimationFrame(render);
     }
 
     const animate = function () {
       controls.update();
-
       render();
     };
 
@@ -161,54 +255,6 @@ function MapScene() {
     };
 
     window.addEventListener('resize', resizeRendererToDisplaySize);
-
-    // Add Click event listener to window
-    const onCanvasClick = (event) => {
-      // Calculate mouse position in normalized device coordinates
-      // (-1 to +1) for both components
-      mouse.x = ( (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
-      mouse.y = -( (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
-
-      // Update the picking ray with the camera and mouse position
-      raycaster.setFromCamera(mouse, camera);
-      // Calculate objects intersecting the picking ray
-      const intersects = raycaster.intersectObjects(scene.children, true);
-
-      // Filter so we only get the Tile objects
-      let tileIntersects = intersects.filter(intersect => {
-        return intersect.object.userData.tile instanceof Tile;
-      });
-
-      if (tileIntersects.length > 0) {
-        const selectedObject = tileIntersects[0].object.userData.tile;
-        if (event.type === 'mousedown') {
-          cameraPositionOnButtonDown = camera.position.clone();
-        }
-        if (event.type === 'mouseup') {
-          cameraPositionOnButtonUp = camera.position.clone();
-        }
-        if (!cameraPositionOnButtonDown.equals(cameraPositionOnButtonUp)) {
-          return;
-        }
-        if (event.type === 'mouseup') {
-          setSelectedCubes((prevSelectedCubes) => {
-            if (prevSelectedCubes.includes(selectedObject)) {
-              selectedObject.is_selected = false;
-              selectedObject.updateColor();
-              return prevSelectedCubes.filter(cube => cube !== selectedObject);
-            } else {
-              selectedObject.is_selected = true;
-              selectedObject.updateColor();
-              return [...prevSelectedCubes, selectedObject];
-            }
-          });
-          tileIntersects[0].object.layers.toggle(BLOOM_SCENE);
-          cameraPositionOnButtonDown = new THREE.Vector3();
-          cameraPositionOnButtonUp = new THREE.Vector3();
-        }
-      }
-    };
-
     window.addEventListener('mousedown', onCanvasClick);
     window.addEventListener('mouseup', onCanvasClick);
 
@@ -220,7 +266,6 @@ function MapScene() {
         container.removeChild(renderer.domElement);
       }
       // Clean up event listeners
-      window.removeEventListener('mousedown', onCanvasClick);
       window.removeEventListener('resize', resizeRendererToDisplaySize);
       controls.dispose();
       renderer.dispose();

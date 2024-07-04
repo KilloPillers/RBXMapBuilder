@@ -32,11 +32,14 @@ export default function DrawerMenu() {
     <ThemeProvider theme={MenuTheme}>
       <Box
         className={`drawer-menu-container ${drawerOpen ? "open" : ""}`}
-        onMouseUp={(e) => {
-          stopPropagation(e)
-        }}
+        
       >
         <Box className="drawer-menu-side-panel">
+          <Paper
+            onMouseUp={(e) => {
+              stopPropagation(e)
+            }}
+          >
           <Paper>
             <IconButton
               children={<GridViewIcon />}
@@ -45,7 +48,6 @@ export default function DrawerMenu() {
                 setMenu("tile-config")
                 setDrawerOpen(true)
               }}
-              
             />
           </Paper>
           <Divider/>
@@ -80,8 +82,13 @@ export default function DrawerMenu() {
               }}>
             </IconButton>
           </Paper>
+          </Paper>
         </Box>
-        <Box className="drawer-menu">
+        <Box className="drawer-menu"
+        onMouseUp={(e) => {
+          stopPropagation(e)
+        }}
+        >
           {menu === "unit-config" && (
             <UnitConfig
               mapData={mapData}

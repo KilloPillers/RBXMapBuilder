@@ -3,6 +3,7 @@ import "./ToolBar.css";
 import { ThemeProvider } from "@mui/material/styles";
 import { MenuTheme } from "../Themes/MenuTheme";
 import { MyContext } from "../MyContext";
+import { useEffect } from "react";
 import Paper from "@mui/material/Paper";
 import SearchIcon from '@mui/icons-material/Search';
 import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
@@ -21,6 +22,10 @@ export default function ToolBar() {
     setTool(newTool);
   };
 
+  useEffect(() => {
+    console.log("Tool: ", tool);
+  }, [tool]);
+
   return (
     <ThemeProvider theme={MenuTheme}>
         <Paper className="toolbar">
@@ -35,19 +40,19 @@ export default function ToolBar() {
             stopPropagation(e);
           }}
         >
-          <ToggleButton value="inspect" aria-label="left aligned"
+          <ToggleButton value="inspect" aria-label="inspect tool"
           >
             <SearchIcon
               color={tool === "inspect" ? "secondary" : "primary"}
             />
           </ToggleButton>
-          <ToggleButton value="select" aria-label="centered"
+          <ToggleButton value="select" aria-label="select tool"
           >
             <HighlightAltIcon 
               color={tool === "select" ? "secondary" : "primary"}
             />
           </ToggleButton>
-          <ToggleButton value="move" aria-label="right aligned"
+          <ToggleButton value="move" aria-label="move tool"
           >
             <OpenWithIcon 
               color={tool === "move" ? "secondary" : "primary"}
