@@ -1,5 +1,5 @@
 .drawer-menu-container {
-  pointer-events: all;
+  pointer-events: all; /* Make the overlay content interactive (or does it..)*/
   display: flex;
   flex-direction: row;
   position: absolute;
@@ -14,7 +14,7 @@
 }
 
 .drawer-menu-side-panel {
-  pointer-events: auto;
+  pointer-events: auto; /* Make the overlay content interactive (actually does)*/
   display: flex;
   flex-direction: column;
   padding-top: 10px;

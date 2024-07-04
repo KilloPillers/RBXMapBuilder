@@ -46,5 +46,10 @@ body {
 }
 
 .overlay .drawer-menu-container {
+  /*pointer-events: all; /* Make the overlay content interactive */
+}
+
+.overlay .toolbar {
   pointer-events: all; /* Make the overlay content interactive */
 }
+

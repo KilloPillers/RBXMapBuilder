@@ -22,10 +22,10 @@ import { MyContext } from '../MyContext';
 
 export default function ActionDial() {
   const { mapData, updateMap } = React.useContext(MyContext);
-  const [openDial, setOpenDial] = React.useState(false);
+  const [openCodePreview, setOpenCodePreview] = React.useState(false);
   const rootRef = React.useRef(null);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpenCodePreview(true);
+  const handleClose = () => setOpenCodePreview(false);
 
   const stopPropagation = (e) => {
     e.stopPropagation();
@@ -93,7 +93,7 @@ export default function ActionDial() {
           />
         ))}
       </SpeedDial>
-      <Fade in={openDial}>
+      <Fade in={openCodePreview}>
         <Modal
         disablePortal
         disableEnforceFocus

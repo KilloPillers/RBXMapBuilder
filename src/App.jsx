@@ -17,7 +17,8 @@ function App() {
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [selectedCubes, setSelectedCubes] = useState([]);
   const unitModelRef = React.useRef();
-
+  const [tool, setTool] = React.useState('left');
+  
   const updateMap = (newMapData) => {
     setMapData(newMapData);
   }
@@ -49,7 +50,9 @@ function App() {
         drawerOpen, 
         setDrawerOpen,
         isModelsLoaded,
-        unitModelRef
+        unitModelRef,
+        tool,
+        setTool
     }}>
       <div className="app">
         <div className="scene">

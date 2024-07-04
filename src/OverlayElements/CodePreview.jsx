@@ -29,7 +29,6 @@ const CodePreview = React.forwardRef((props, ref) => {
   useEffect(() => {
     // ensure prism is loade before attempting to highlight'
     if (window.Prism) {
-      console.log('highlighting code');
       window.Prism.highlightAll();
     }
   }, [codeString]);
@@ -45,7 +44,6 @@ const CodePreview = React.forwardRef((props, ref) => {
     for (let i = 1; i <= mapData.width; i++) {
       map_code += "newheights[" + i + "] = {"
       for (let j = 1; j <= mapData.height; j++) {
-        console.log('mapData.ButtonGrid[i-1][j-1]:', mapData.ButtonGrid[i-1][j-1])
         if (mapData.ButtonGrid[i-1][j-1].is_deploy_position) {
           deploy_positions += "table.insert(newmap.deployPositions, Vector2.new(" + i + ", " + j + "))\n";
         }
@@ -81,7 +79,6 @@ const CodePreview = React.forwardRef((props, ref) => {
 
     for (let i = 0; i < unit_tiles.length; i++) {
       let unit_tile = unit_tiles[i];
-      console.log('unit_tile:', unit_tiles[i]);
       let unit = unit_tile.unit;
       let position = "(" + (unit_tile.tile_position[0] + 1) + ", " + (unit_tile.tile_position[1] + 1) + ")";
       unit_code += unit_id_pos.replace('{}', unit.classID)
@@ -135,7 +132,6 @@ const CodePreview = React.forwardRef((props, ref) => {
           variant="contained"
           color="secondary"
           onClick={() => {
-              console.log('close button clicked')
               props.handleClose();
             }}
         >Close</Button>

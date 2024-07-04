@@ -1,0 +1,6 @@
+.toolbar {
+  pointer-events: auto; /* Make the overlay content interactive */
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
