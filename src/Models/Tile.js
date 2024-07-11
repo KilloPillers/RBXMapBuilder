@@ -111,13 +111,13 @@ export default class Tile extends THREE.Object3D {
 		
 		if (this.is_inspected) {
 			colorHex = INSPECTED_TILE_COLOR; 
+		} else if (this.is_selected) {
+			colorHex = SELECTED_TILE_COLOR;
 		} else if (this.tileJSON.is_action_tile) {
 			colorHex = ACTION_TILE_COLOR;
 		} else if (this.tileJSON.is_deploy_position) {
 			colorHex = DEPLOY_TILE_COLOR;
-		} else if (this.is_selected) {
-			colorHex = SELECTED_TILE_COLOR;
-		}
+		} 
 		else {
 			colorHex = DEFAULT_TILE_COLOR;
 		}
@@ -169,5 +169,15 @@ export default class Tile extends THREE.Object3D {
 		if (unit) {
 			this.remove(unit);
 		}
+	}
+	
+	setDeployPosition(isDeployPosition) {
+		this.tileJSON.is_deploy_position = isDeployPosition;
+		this.updateColor();
+	}
+
+	setActionTile(isActionTile) {
+		this.tileJSON.is_action_tile = isActionTile;
+		this.updateColor();
 	}
 }

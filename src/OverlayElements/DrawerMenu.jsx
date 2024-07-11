@@ -90,25 +90,13 @@ export default function DrawerMenu() {
         }}
         >
           {menu === "unit-config" && (
-            <UnitConfig
-              mapData={mapData}
-              updateMap={updateMap}
-              selectedCubes={selectedCubes}
-            />
+            <UnitConfig/>
           )}
           {menu === "tile-config" && (
-            <TileConfig
-              mapData={mapData}
-              updateMap={updateMap}
-              selectedCubes={selectedCubes}
-            />
+            <TileConfig/>
           )}
           {menu === "position-config" && (
-            <PositionConfig
-              mapData={mapData}
-              updateMap={updateMap}
-              selectedCubes={selectedCubes}
-            />
+            <PositionConfig/>
           )}
         </Box>
       </Box>

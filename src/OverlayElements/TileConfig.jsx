@@ -32,7 +32,7 @@ import "./DrawerMenu.css";
 const buttons = [];
 
 export default function TileConfig() {
-  const { selectedCubes } = React.useContext(MyContext);
+  const { selectedCubes, inspectedTile } = React.useContext(MyContext);
   const [decimalHeight, setDecimalHeight] = React.useState(0);
   const [oldHeight, setOldHeight] = React.useState(1);
   const [height, setHeight] = React.useState(1);
@@ -41,14 +41,20 @@ export default function TileConfig() {
   const [mode, setMode] = React.useState("uniform");
 
   useEffect(() => { 
-    if (selectedCubes.length > 0) {
+    if (selectedCubes.length > 0 || inspectedTile) {
       // Find Median Height
       let totalHeight = 0;
+      let numTiles = 0;
+      if (inspectedTile) {
+        totalHeight += inspectedTile.tileJSON.tile_height;
+        numTiles++;
+      }
       for (let i = 0; i < selectedCubes.length; i++) {
         totalHeight += selectedCubes[i].tileJSON.tile_height;
+        numTiles++;
       }
       // Round to 2 decimal places 
-      let medianHeight = Math.round((totalHeight/selectedCubes.length) * 100) / 100; 
+      let medianHeight = Math.round((totalHeight/numTiles) * 100) / 100;
       setHeight(Math.round(medianHeight));
       // Set decimal height
       // Round to 2 decimal places
@@ -57,7 +63,7 @@ export default function TileConfig() {
       setOldHeight(medianHeight);
       setMaxHeight(2*Math.ceil(medianHeight-minHeight));
     }
-  }, [selectedCubes]);
+  }, [selectedCubes, inspectedTile]);
 
 
   function preventHorizontalKeyboardNavigation(event) {
@@ -79,6 +85,9 @@ export default function TileConfig() {
     if (mode === "discrete") {
       
       let delta = newHeight - oldHeight;
+      if (inspectedTile) {
+        inspectedTile.updateHeight(newHeight);
+      }
       for (let i = 0; i < selectedCubes.length; i++) {
         let newHeight = (selectedCubes[i].tileJSON.tile_height + delta);
         // convert to 2 decimal places
@@ -87,6 +96,9 @@ export default function TileConfig() {
       }
     }
     else {
+      if (inspectedTile) {
+        inspectedTile.updateHeight(newHeight);
+      }
       for (let i = 0; i < selectedCubes.length; i++) {
         selectedCubes[i].updateHeight(newHeight);
       }

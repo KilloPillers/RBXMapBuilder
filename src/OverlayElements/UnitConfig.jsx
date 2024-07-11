@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { useRef } from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import { ThemeProvider } from '@mui/material/styles';
 import { MenuTheme } from '../Themes/MenuTheme';
@@ -11,7 +13,6 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField'
 import { MyContext } from '../MyContext';
 import "./DrawerMenu.css"
-
 
 const defaultUnitData = {
                     "unitLevel": "",
@@ -42,31 +43,41 @@ const defaultUnitData = {
                 }
 
 export default function UnitConfig() {
-  const { mapData, updateMap, selectedCubes, unitModelRef } = React.useContext(MyContext);
-  const unitNameRef = useRef(null);
-  const unitLevelRef = useRef(null);
-  const classIdRef = useRef(null);
-  const unitIdRef = useRef(null);
-  const personalityRef = useRef("RandomAction")
-  const deathEventRef = useRef("nil");
-  const maxHpRef = useRef(null);
-  const maxSpRef = useRef(null);
-  const unitAtkRef = useRef(null);
-  const unitDefRef = useRef(null);
-  const unitSpdRef = useRef(null);
-  const unitHitRef = useRef(null);
-  const unitIntRef = useRef(null);
-  const unitResRef = useRef(null);
-  const skill1Ref = useRef(null);
-  const skill2Ref = useRef(null);
-  const skill3Ref = useRef(null);
-  const skill4Ref = useRef(null);
-  const passive1Ref = useRef(null);
-  const passive2Ref = useRef(null);
-  const passive3Ref = useRef(null);
+  const { mapData, updateMap, selectedCubes, unitModelRef, inspectedTile } = React.useContext(MyContext);
+  const [unitName, setUnitName] = useState("");
+  const [unitLevel, setUnitLevel] = useState("");
+  const [classId, setClassId] = useState("");
+  const [unitId, setUnitId] = useState("");
+  const [personality, setPersonality] = useState("RandomAction");
+  const [deathEvent, setDeathEvent] = useState("nil");
+  const [maxHP, setMaxHP] = useState("");
+  const [maxSp, setMaxSP] = useState("");
+  const [unitAtk, setUnitAtk] = useState("");
+  const [unitDef, setUnitDef] = useState("");
+  const [unitSpd, setUnitSpd] = useState("");
+  const [unitHit, setUnitHit] = useState("");
+  const [unitInt, setUnitInt] = useState("");
+  const [unitRes, setUnitRes] = useState("");
+  const [skill1, setSkill1] = useState("");
+  const [skill2, setSkill2] = useState("");
+  const [skill3, setSkill3] = useState("");
+  const [skill4, setSkill4] = useState("");
+  const [passive1, setPassive1] = useState("");
+  const [passive2, setPassive2] = useState("");
+  const [passive3, setPassive3] = useState("");
+
+  const [key, setKey] = useState(0);
 
   const handleDelete = () => {
-    console.log('Delete unit');
+
+    if (inspectedTile) {
+      inspectedTile.tileJSON.unit = defaultUnitData;
+      inspectedTile.removeUnit();
+    }
+
+    if (selectedCubes.length === 0) {
+      return;
+    }
     for (let i = 0; i < selectedCubes.length; i++) {
       const cube = selectedCubes[i];
       cube.tileJSON.unit = defaultUnitData;
@@ -74,37 +85,71 @@ export default function UnitConfig() {
     }
   };
 
+  useEffect(() => {
+    if (inspectedTile) {
+      const unit = inspectedTile.tileJSON.unit;
+      setUnitName(unit.unitName);
+      setUnitLevel(unit.unitLevel);
+      setClassId(unit.classId);
+      setUnitId(unit.unitId);
+      setPersonality(unit.personality);
+      setDeathEvent(unit.deathEvent);
+      setMaxHP(unit.maxHP);
+      setMaxSP(unit.maxSP);
+      setUnitAtk(unit.Atk);
+      setUnitDef(unit.Def);
+      setUnitSpd(unit.Spd);
+      setUnitHit(unit.Hit);
+      setUnitInt(unit.Int);
+      setUnitRes(unit.Res);
+      setSkill1(unit.skills[0]);
+      setSkill2(unit.skills[1]);
+      setSkill3(unit.skills[2]);
+      setSkill4(unit.skills[3]);
+      setPassive1(unit.passives[0]);
+      setPassive2(unit.passives[1]);
+      setPassive3(unit.passives[2]);
+      setKey(prevKey => prevKey + 1); // Force re-render
+    }
+  }, [inspectedTile]);
+
+
   const handleSave = () => {
     const unitData = {
-      unitName: unitNameRef.current.value,
-      unitLevel: unitLevelRef.current.value,
-      classId: classIdRef.current.value,
-      unitId: unitIdRef.current.value,
-      personality: personalityRef.current,
-      deathEvent: deathEventRef.current.value,
-      maxHp: maxHpRef.current.value,
-      maxSp: maxSpRef.current.value,
-      unitAtk: unitAtkRef.current.value,
-      unitDef: unitDefRef.current.value,
-      unitSpd: unitSpdRef.current.value,
-      unitHit: unitHitRef.current.value,
-      unitInt: unitIntRef.current.value,
-      unitRes: unitResRef.current.value,
-      skills: {
-        skill1: skill1Ref.current.value,
-        skill2: skill2Ref.current.value,
-        skill3: skill3Ref.current.value,
-        skill4: skill4Ref.current.value,
-      },
-      passives: {
-        passive1: passive1Ref.current.value,
-        passive2: passive2Ref.current.value,
-        passive3: passive3Ref.current.value,
-      },
+      unitName: unitName, 
+      unitLevel: unitLevel,
+      classId: classId,
+      unitId: unitId,
+      personality: personality,
+      deathEvent: deathEvent,
+      maxHP: maxHP,
+      maxSP: maxSp,
+      Atk: unitAtk,
+      Def: unitDef,
+      Spd: unitSpd,
+      Hit: unitHit,
+      Int: unitInt,
+      Res: unitRes,
+      skills: [
+        skill1,
+        skill2,
+        skill3,
+        skill4,
+      ],
+      passives: [
+        passive1,
+        passive2,
+        passive3,
+      ],
     };
 
-    console.log(unitData);
-    
+    if (inspectedTile) {
+      inspectedTile.tileJSON.unit = unitData;
+    }
+
+    if (selectedCubes.length === 0) {
+      return;
+    }
     for (let i = 0; i < selectedCubes.length; i++) {
       const cube = selectedCubes[i];
       const unit = cube.tileJSON.unit;
@@ -113,7 +158,7 @@ export default function UnitConfig() {
         cube.addUnit(unitModelRef.current);
       }
     }
-
+      
     //updateMap(mapData); // Not sure if this is necessary
   };
 
@@ -126,54 +171,54 @@ export default function UnitConfig() {
           </Typography>
         </Paper>
       </Box>
-      <Box className='drawer-menu-unit-config'>
-        <Paper>
+      <Box className='drawer-menu-unit-config' key={key}>
+        <Paper> 
           <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
             Unit Profile
           </Typography>
-          <Divider />
+          <Divider/>
           <FormGroup>
             <TextField
               id="unit-name"
               label="Unit Name"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitNameRef}
+              value={unitName}
+              onChange={(e) => setUnitName(e.target.value)}
             />
             <TextField
               id="unit-level"
               label="Unit Level"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitLevelRef}
+              value={unitLevel}
+              onChange={(e) => setUnitLevel(e.target.value)}
             />
             <TextField
               id="class-id"
               label="Class ID"
               variant="outlined"
-              defaultValue=""
-              inputRef={classIdRef}
+              value={classId}
+              onChange={(e) => setClassId(e.target.value)}
             />
             <TextField
               id="unit-id"
               label="Unit ID"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitIdRef}
+              value={unitId}
+              onChange={(e) => setUnitId(e.target.value)}
             />
             <TextField
               id="personality"
               label="Personality"
               variant="outlined"
-              defaultValue="RandomAction"
-              inputRef={personalityRef}
+              value={personality}
+              onChange={(e) => setPersonality(e.target.value)}
             />
             <TextField
               id="death-event"
               label="Death Event"
               variant="outlined"
-              defaultValue="nil"
-              inputRef={deathEventRef}
+              value={deathEvent}
+              onChange={(e) => setDeathEvent(e.target.value)}
             />
           </FormGroup>
         </Paper>
@@ -187,57 +232,57 @@ export default function UnitConfig() {
               id="max-hp"
               label="Max HP"
               variant="outlined"
-              defaultValue=""
-              inputRef={maxHpRef}
+              value={maxHP}
+              onChange={(e) => setMaxHP(e.target.value)}
             />
             <TextField
               id="max-sp"
               label="Max SP"
               variant="outlined"
-              defaultValue=""
-              inputRef={maxSpRef}
+              value={maxSp}
+              onChange={(e) => setMaxSP(e.target.value)}
             />
             <TextField
               id="unit-atk"
               label="Atk"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitAtkRef}
+              value={unitAtk}
+              onChange={(e) => setUnitAtk(e.target.value)}
             />
             <TextField
               id="unit-def"
               label="Def"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitDefRef}
+              value={unitDef}
+              onChange={(e) => setUnitDef(e.target.value)}
             />
             <TextField
               id="unit-Spd"
               label="Spd"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitSpdRef}
+              value={unitSpd}
+              onChange={(e) => setUnitSpd(e.target.value)}
             />
             <TextField
               id="unit-Hit"
               label="Hit"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitHitRef}
+              value={unitHit}
+              onChange={(e) => setUnitHit(e.target.value)}
             />
             <TextField
               id="unit-Int"
               label="Int"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitIntRef}
+              value={unitInt}
+              onChange={(e) => setUnitInt(e.target.value)}
             />
             <TextField
               id="unit-Res"
               label="Res"
               variant="outlined"
-              defaultValue=""
-              inputRef={unitResRef}
+              value={unitRes}
+              onChange={(e) => setUnitRes(e.target.value)}
             />
           </FormGroup>
         </Paper>
@@ -251,29 +296,29 @@ export default function UnitConfig() {
               id="skill-1"
               label="Skill 1"
               variant="outlined"
-              defaultValue=""
-              inputRef={skill1Ref}
+              value={skill1}
+              onChange={(e) => setSkill1(e.target.value)}
             />
             <TextField
               id="skill-2"
               label="Skill 2"
               variant="outlined"
-              defaultValue=""
-              inputRef={skill2Ref}
+              value={skill2}
+              onChange={(e) => setSkill2(e.target.value)}
             />
             <TextField
               id="skill-3"
               label="Skill 3"
               variant="outlined"
-              defaultValue=""
-              inputRef={skill3Ref}
+              value={skill3}
+              onChange={(e) => setSkill3(e.target.value)}
             />
             <TextField
               id="skill-4"
               label="Skill 4"
               variant="outlined"
-              defaultValue=""
-              inputRef={skill4Ref}
+              value={skill4}
+              onChange={(e) => setSkill4(e.target.value)}
             />
           </FormGroup>
         </Paper>
@@ -287,22 +332,22 @@ export default function UnitConfig() {
               id="passive-1"
               label="Passive 1"
               variant="outlined"
-              defaultValue=""
-              inputRef={passive1Ref}
+              value={passive1}
+              onChange={(e) => setPassive1(e.target.value)}
             />
             <TextField
               id="passive-2"
               label="Passive 2"
               variant="outlined"
-              defaultValue=""
-              inputRef={passive2Ref}
+              value={passive2}
+              onChange={(e) => setPassive2(e.target.value)}
             />
             <TextField
               id="passive-3"
               label="Passive 3"
               variant="outlined"
-              defaultValue=""
-              inputRef={passive3Ref}
+              value={passive3}
+              onChange={(e) => setPassive3(e.target.value)}
             />
           </FormGroup>
           <Divider />
