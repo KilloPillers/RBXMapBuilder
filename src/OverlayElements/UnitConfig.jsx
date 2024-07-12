@@ -145,6 +145,7 @@ export default function UnitConfig() {
 
     if (inspectedTile) {
       inspectedTile.tileJSON.unit = unitData;
+      inspectedTile.addUnit(unitModelRef.current);
     }
 
     if (selectedCubes.length === 0) {
@@ -154,12 +155,10 @@ export default function UnitConfig() {
       const cube = selectedCubes[i];
       const unit = cube.tileJSON.unit;
       if (unit) {
-        cube.unit = unitData;
+        cube.tileJSON.unit = unitData;
         cube.addUnit(unitModelRef.current);
       }
     }
-      
-    //updateMap(mapData); // Not sure if this is necessary
   };
 
   return (

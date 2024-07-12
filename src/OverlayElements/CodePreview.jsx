@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState, useContext, forwardRef } from 'react';
 import Paper from '@mui/material/Paper'; 
 import Button from '@mui/material/Button';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
@@ -12,28 +11,28 @@ import CheckIcon from '@mui/icons-material/Check';
 import Link from '@mui/material/Link';
 import './CodePreview.css';
 
-const CodePreview = React.forwardRef((props, ref) => {
-  const { mapData, updateMap } = React.useContext(MyContext);
-  const [codeType, setCodeType] = React.useState('Unit');
-  const [codeString, setCodeString] = React.useState('');
-  const [unitCode, setUnitCode] = React.useState('');
-  const [mapCode, setMapCode] = React.useState('');
-  const [copied, setCopied] = React.useState(false);
+const CodePreview = forwardRef((props, ref) => {
+  const { mapData, updateMap } = useContext(MyContext);
+  const [codeType, setCodeType] = useState('Unit');
+  const [codeString, setCodeString] = useState('');
+  const [unitCode, setUnitCode] = useState('');
+  const [mapCode, setMapCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    generateCode();
+    generateCode(mapData);
     setCodeString(unitCode);
     setCodeType('Unit');
-  }, []);
+  }, [props.open]);
 
   useEffect(() => {
-    // ensure prism is loade before attempting to highlight'
+    // ensure prism is loaded before attempting to highlight'
     if (window.Prism) {
       window.Prism.highlightAll();
     }
   }, [codeString]);
 
-  function generateCode() { 
+  function generateCode(mapData) { 
     let deploy_positions = '';
     let action_tiles = '';
     let unit_tiles = [];

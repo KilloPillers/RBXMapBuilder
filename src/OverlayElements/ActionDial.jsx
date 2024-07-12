@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useContext, useState, useRef } from 'react';
 import SpeedDial from '@mui/material/SpeedDial';
 import Box from '@mui/material/Box';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -6,6 +6,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import CodeIcon from '@mui/icons-material/Code';
 import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import { ThemeProvider } from '@mui/material/styles';
@@ -17,24 +18,27 @@ import { writeTextFile } from '@tauri-apps/api/fs';
 import { readTextFile } from '@tauri-apps/api/fs';
 import CodePreview from './CodePreview'; 
 import { MyContext } from '../MyContext';
-
-
+import MapCreateModal from './MapCreateModal';
 
 export default function ActionDial() {
-  const { mapData, updateMap } = React.useContext(MyContext);
-  const [openCodePreview, setOpenCodePreview] = React.useState(false);
-  const rootRef = React.useRef(null);
-  const handleOpen = () => setOpenCodePreview(true);
-  const handleClose = () => setOpenCodePreview(false);
+  const { mapData, updateMap } = useContext(MyContext);
+  const [openCodePreview, setOpenCodePreview] = useState(false);
+  const [openMapCreateModal, setOpenMapCreateModal] = useState(false);
+  const rootRef = useRef(null);
+  const handleOpenCodePreview = () => setOpenCodePreview(true);
+  const handleCloseCodePreview = () => setOpenCodePreview(false);
+  const handleOpenMapCreateModal = () => setOpenMapCreateModal(true);
+  const handleCloseMapCreateModal = () => setOpenMapCreateModal(false);
 
   const stopPropagation = (e) => {
     e.stopPropagation();
   }
 
   const actions = [
-    { icon: <CodeIcon />, name: 'Code', onClick: handleOpen },
+    { icon: <CodeIcon />, name: 'Code', onClick: handleOpenCodePreview },
     { icon: <SaveIcon />, name: 'Save', onClick: handleSave },
     { icon: <FileOpenIcon />, name: 'Open', onClick: openMap },
+    { icon: <NoteAddIcon />, name: 'Create', onClick: handleOpenMapCreateModal } 
   ];
 
   async function openMap() {
@@ -112,7 +116,33 @@ export default function ActionDial() {
             stopPropagation(e)
         }}
       >
-          <CodePreview handleClose={handleClose}/>
+          <CodePreview
+            open={openCodePreview}
+            handleClose={handleCloseCodePreview}
+          />
+        </Modal>
+      </Fade>
+      <Fade in={openMapCreateModal}>
+        <Modal
+        disablePortal
+        disableEnforceFocus
+        disableAutoFocus
+        onClose={handleCloseMapCreateModal}
+        open
+        aria-labelledby="server-modal-title"
+        aria-describedby="server-modal-description"
+        sx={{
+          display: 'flex',
+          p: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        container={() => rootRef.current}
+        onMouseUp={(e) => { 
+            stopPropagation(e)
+        }}
+      >
+          <MapCreateModal handleClose={handleCloseMapCreateModal}/>
         </Modal>
       </Fade>
     </ThemeProvider>
