@@ -21,4 +21,4 @@ custom-protocol = ["tauri/custom-protocol"]
 
 [[bin]]
 name = "mapbuilder"
-path = "src-tauri/src/main.rs"
+path = "src/main.rs"
