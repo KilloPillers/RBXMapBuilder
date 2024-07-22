@@ -1,42 +1,49 @@
-import React, { useRef, useEffect, useState, useContext, useCallback } from 'react';
-import * as THREE from 'three';
-import Tile from './Models/Tile';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
-import { MyContext } from './MyContext';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+} from "react";
+import * as THREE from "three";
+import Tile from "./Models/Tile";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { MyContext } from "./MyContext";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 const BLOOM_SCENE = 1;
 
 function MapScene() {
-  const { mapData, 
-    selectedCubes, 
-    setSelectedCubes, 
-    drawerOpen, 
-    isModelsLoaded, 
-    unitModelRef, 
-    tool,  
+  const {
+    mapData,
+    selectedCubes,
+    setSelectedCubes,
+    drawerOpen,
+    isModelsLoaded,
+    unitModelRef,
+    tool,
     inspectedTile,
-    setInspectedTile
-  } = useContext(MyContext); 
+    setInspectedTile,
+  } = useContext(MyContext);
   const containerRef = useRef();
   const controlsRef = useRef();
   const rendererRef = useRef();
   const sceneRef = useRef();
   const cameraRef = useRef();
   const cubesRef = useRef([]);
-  
+
   // Create a raycaster and mouse vector
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
   // Create a color to use when selecting objects
   const colorSelected = new THREE.Color(0xff0000); // Red
-  const target = new THREE.Vector3(0,0,0) // Target to rotate around
+  const target = new THREE.Vector3(0, 0, 0); // Target to rotate around
 
   // Create vectors to store camera position when mouse is down and up
   var cameraPositionOnButtonDown = new THREE.Vector3();
@@ -45,98 +52,118 @@ function MapScene() {
   const cubes = [];
 
   // Add Click event listener to window
-  const onCanvasClick = useCallback((event) => {
-    // Calculate mouse position in normalized device coordinates
-    // (-1 to +1) for both components
-    mouse.x = ( (event.clientX - rendererRef.current.domElement.offsetLeft) / rendererRef.current.domElement.width ) * 2 - 1;
-    mouse.y = -( (event.clientY - rendererRef.current.domElement.offsetTop) / rendererRef.current.domElement.height ) * 2 + 1;
+  const onCanvasClick = useCallback(
+    (event) => {
+      // Calculate mouse position in normalized device coordinates
+      // (-1 to +1) for both components
+      mouse.x =
+        ((event.clientX - rendererRef.current.domElement.offsetLeft) /
+          rendererRef.current.domElement.width) *
+          2 -
+        1;
+      mouse.y =
+        -(
+          (event.clientY - rendererRef.current.domElement.offsetTop) /
+          rendererRef.current.domElement.height
+        ) *
+          2 +
+        1;
 
-    // Update the picking ray with the camera and mouse position
-    raycaster.setFromCamera(mouse, cameraRef.current);
-    // Calculate objects intersecting the picking ray
-    const intersects = raycaster.intersectObjects(sceneRef.current.children, true);
+      // Update the picking ray with the camera and mouse position
+      raycaster.setFromCamera(mouse, cameraRef.current);
+      // Calculate objects intersecting the picking ray
+      const intersects = raycaster.intersectObjects(
+        sceneRef.current.children,
+        true
+      );
 
-    // Filter so we only get the Tile objects
-    let tileIntersects = intersects.filter(intersect => {
-      return intersect.object.userData.tile instanceof Tile;
-    });
+      // Filter so we only get the Tile objects
+      let tileIntersects = intersects.filter((intersect) => {
+        return intersect.object.userData.tile instanceof Tile;
+      });
 
-    if (tileIntersects.length > 0) {
-      const selectedObject = tileIntersects[0].object.userData.tile;
-      if (event.type === 'mousedown') {
-        cameraPositionOnButtonDown = cameraRef.current.position.clone();
-      }
-      if (event.type === 'mouseup') {
-        cameraPositionOnButtonUp = cameraRef.current.position.clone();
-      }
-      if (!cameraPositionOnButtonDown.equals(cameraPositionOnButtonUp)) {
-        return;
-      }
-      if (event.type === 'mouseup') {
-        if (tool === 'inspect') {
-          // Check if the tile is already inspected
-          if (inspectedTile === selectedObject) {
-            setInspectedTile(null);
-            selectedObject.is_inspected = false;
-            selectedObject.getMesh().layers.disable(BLOOM_SCENE);
-            if (selectedObject !== inspectedTile) {
-              selectedObject.getMesh().layers.disable(BLOOM_SCENE);
-            }
-          } else {
-            if (inspectedTile) {
-              inspectedTile.is_inspected = false;
-              inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
-              inspectedTile.updateColor();
-            }
-            setInspectedTile(selectedObject);
-            selectedObject.getMesh().layers.enable(BLOOM_SCENE);
-            selectedObject.is_inspected = true;
-          }
-          selectedObject.updateColor();
+      if (tileIntersects.length > 0) {
+        const selectedObject = tileIntersects[0].object.userData.tile;
+        if (event.type === "mousedown") {
+          cameraPositionOnButtonDown = cameraRef.current.position.clone();
         }
-        
-        if (tool === 'select') {
-          setSelectedCubes((prevSelectedCubes) => {
-            if (prevSelectedCubes.includes(selectedObject)) {
-              selectedObject.is_selected = false;
-              selectedObject.updateColor();
-              if (inspectedTile !== selectedObject) {
-                tileIntersects[0].object.layers.disable(BLOOM_SCENE);
+        if (event.type === "mouseup") {
+          cameraPositionOnButtonUp = cameraRef.current.position.clone();
+        }
+        if (!cameraPositionOnButtonDown.equals(cameraPositionOnButtonUp)) {
+          return;
+        }
+        if (event.type === "mouseup") {
+          if (tool === "inspect") {
+            // Check if the tile is already inspected
+            if (inspectedTile === selectedObject) {
+              setInspectedTile(null);
+              selectedObject.is_inspected = false;
+              selectedObject.getMesh().layers.disable(BLOOM_SCENE);
+              if (selectedObject !== inspectedTile) {
+                selectedObject.getMesh().layers.disable(BLOOM_SCENE);
               }
-              return prevSelectedCubes.filter(cube => cube !== selectedObject);
             } else {
-              selectedObject.is_selected = true;
-              tileIntersects[0].object.layers.enable(BLOOM_SCENE);
-              selectedObject.updateColor();
-              return [...prevSelectedCubes, selectedObject];
+              if (inspectedTile) {
+                inspectedTile.is_inspected = false;
+                inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
+                inspectedTile.updateColor();
+              }
+              setInspectedTile(selectedObject);
+              selectedObject.getMesh().layers.enable(BLOOM_SCENE);
+              selectedObject.is_inspected = true;
             }
-          });
+            selectedObject.updateColor();
+          }
+
+          if (tool === "select") {
+            setSelectedCubes((prevSelectedCubes) => {
+              if (prevSelectedCubes.includes(selectedObject)) {
+                selectedObject.is_selected = false;
+                selectedObject.updateColor();
+                if (inspectedTile !== selectedObject) {
+                  tileIntersects[0].object.layers.disable(BLOOM_SCENE);
+                }
+                return prevSelectedCubes.filter(
+                  (cube) => cube !== selectedObject
+                );
+              } else {
+                selectedObject.is_selected = true;
+                tileIntersects[0].object.layers.enable(BLOOM_SCENE);
+                selectedObject.updateColor();
+                return [...prevSelectedCubes, selectedObject];
+              }
+            });
           }
           cameraPositionOnButtonDown = new THREE.Vector3();
           cameraPositionOnButtonUp = new THREE.Vector3();
+        }
       }
-    }
-  }, [tool, inspectedTile]); 
+    },
+    [tool, inspectedTile]
+  );
 
-  
   useEffect(() => {
-    window.addEventListener('mousedown', onCanvasClick);
-    window.addEventListener('mouseup', onCanvasClick);
+    window.addEventListener("mousedown", onCanvasClick);
+    window.addEventListener("mouseup", onCanvasClick);
     return () => {
       // Clean up event listeners
-      window.removeEventListener('mousedown', onCanvasClick);
-      window.removeEventListener('mouseup', onCanvasClick);
+      window.removeEventListener("mousedown", onCanvasClick);
+      window.removeEventListener("mouseup", onCanvasClick);
     };
   }, [tool, inspectedTile]);
-  
-
 
   useEffect(() => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
     cameraRef.current = camera;
-    
+
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     rendererRef.current = renderer;
@@ -145,9 +172,14 @@ function MapScene() {
     const renderPass = new RenderPass(scene, camera);
 
     // Render pass for the bloom layer
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      1.5,
+      0.4,
+      0.85
+    );
     bloomPass.threshold = 0.1;
-    bloomPass.strength = .2;
+    bloomPass.strength = 0.2;
     bloomPass.radius = 0.1;
     const bloomComposer = new EffectComposer(renderer);
     bloomComposer.addPass(renderPass);
@@ -159,7 +191,7 @@ function MapScene() {
       new THREE.ShaderMaterial({
         uniforms: {
           baseTexture: { value: null },
-          bloomTexture: { value: bloomComposer.renderTarget2.texture }
+          bloomTexture: { value: bloomComposer.renderTarget2.texture },
         },
         vertexShader: `
           varying vec2 vUv;
@@ -176,12 +208,13 @@ function MapScene() {
             gl_FragColor = (texture2D(baseTexture, vUv) + vec4(1.0) * texture2D(bloomTexture, vUv));
           }
         `,
-        }), 'baseTexture'
+      }),
+      "baseTexture"
     );
 
     const outputPass = new OutputPass();
     bloomComposer.addPass(outputPass);
-    
+
     const finalComposer = new EffectComposer(renderer);
     finalComposer.addPass(renderPass);
     finalComposer.addPass(mixPass);
@@ -192,19 +225,19 @@ function MapScene() {
     const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const materials = {};
 
-    const nonBloom = ( obj ) => {
-      if ( obj.isMesh && bloomLayer.test( obj.layers ) == false ) {
-        materials[ obj.uuid ] = obj.material;
+    const nonBloom = (obj) => {
+      if (obj.isMesh && bloomLayer.test(obj.layers) == false) {
+        materials[obj.uuid] = obj.material;
         obj.material = darkMaterial;
       }
-    }
-    
-    const restoreMaterial = ( obj ) => {
-      if ( materials[ obj.uuid ] ) {
-        obj.material = materials[ obj.uuid ];
-        delete materials[ obj.uuid ];
+    };
+
+    const restoreMaterial = (obj) => {
+      if (materials[obj.uuid]) {
+        obj.material = materials[obj.uuid];
+        delete materials[obj.uuid];
       }
-    }
+    };
 
     // check if the render's DOM element is in the container
     const container = containerRef.current;
@@ -218,9 +251,9 @@ function MapScene() {
     scene.add(directionalLight);
 
     // Add an ambient light for soft overall light
-    const ambientLight = new THREE.AmbientLight(0xffffff, .5); // Also white light, half intensity
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Also white light, half intensity
     scene.add(ambientLight);
-    
+
     camera.position.z = -8;
     camera.position.y = 5;
     camera.position.x = -8;
@@ -236,7 +269,7 @@ function MapScene() {
       scene.traverse(restoreMaterial);
       finalComposer.render();
       requestAnimationFrame(render);
-    }
+    };
 
     const animate = function () {
       controls.update();
@@ -254,9 +287,9 @@ function MapScene() {
       camera.updateProjectionMatrix();
     };
 
-    window.addEventListener('resize', resizeRendererToDisplaySize);
-    window.addEventListener('mousedown', onCanvasClick);
-    window.addEventListener('mouseup', onCanvasClick);
+    window.addEventListener("resize", resizeRendererToDisplaySize);
+    window.addEventListener("mousedown", onCanvasClick);
+    window.addEventListener("mouseup", onCanvasClick);
 
     return () => {
       // Remove the renderer's DOM element from the container
@@ -266,7 +299,7 @@ function MapScene() {
         container.removeChild(renderer.domElement);
       }
       // Clean up event listeners
-      window.removeEventListener('resize', resizeRendererToDisplaySize);
+      window.removeEventListener("resize", resizeRendererToDisplaySize);
       controls.dispose();
       renderer.dispose();
     };
@@ -280,13 +313,13 @@ function MapScene() {
       }
       if (object.material) {
         if (Array.isArray(object.material)) {
-          object.material.forEach(material => material.dispose());
+          object.material.forEach((material) => material.dispose());
         } else {
           object.material.dispose();
         }
       }
       sceneRef.current.remove(object);
-    }; 
+    };
 
     if (!isModelsLoaded) return;
 
@@ -298,21 +331,24 @@ function MapScene() {
 
     if (!scene || !map) return;
     // Update the cube heights based on the map data
-    cubesRef.current.forEach(cube => scene.remove(cube.cube));
+    cubesRef.current.forEach((cube) => scene.remove(cube.cube));
     cubesRef.current = [];
-    const spacing = 1.00;
-    
+    const spacing = 1.0;
+
     if (mapData.ButtonGrid === "empty") {
-          console.log("Empty map");
-          return;
+      console.log("Empty map");
+      return;
     }
 
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         // Create a cube
-        const tileData = map[i][j]; 
+        const tileData = map[i][j];
         const cube = new Tile(tileData);
-        cube.updatePosition((i - Math.floor(width / 2)) * spacing, (j - Math.floor(height / 2)) * spacing);
+        cube.updatePosition(
+          (i - Math.floor(width / 2)) * spacing,
+          (j - Math.floor(height / 2)) * spacing
+        );
         cube.updateHeight(tileData.tile_height);
         cube.updateColor();
         if (tileData.has_unit) {
@@ -322,12 +358,12 @@ function MapScene() {
         scene.add(cube);
       }
     }
-    
+
     return () => {
       // Remove the old cubes from the scene
-      cubesRef.current.forEach(cube => disposeObject(cube));
+      cubesRef.current.forEach((cube) => disposeObject(cube));
       cubesRef.current = [];
-    }
+    };
   }, [mapData, isModelsLoaded]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
 
   return <div ref={containerRef} />;

@@ -15,33 +15,33 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { MyContext } from "../MyContext";
 
-
 export default function PositionConfig() {
-  const { mapData, updateMap, selectedCubes, inspectedTile } = React.useContext(MyContext);
+  const { mapData, updateMap, selectedCubes, inspectedTile } =
+    React.useContext(MyContext);
   const [deployPosition, setDeployPosition] = useState(false);
   const [actionPosition, setActionPosition] = useState(false);
   const [tileName, setTileName] = useState("");
   const [eventID, setEventID] = useState("");
   const [key, setKey] = useState(0);
-    
-  useEffect(() => { 
+
+  useEffect(() => {
     if (inspectedTile) {
-      console.log("inspectedTile: ", inspectedTile)
+      console.log("inspectedTile: ", inspectedTile);
       setDeployPosition(inspectedTile.tileJSON.is_deploy_position);
       setActionPosition(inspectedTile.tileJSON.is_action_tile);
       setTileName(inspectedTile.tileJSON.tile_name);
-      setEventID(inspectedTile.tileJSON.event_id);      
+      setEventID(inspectedTile.tileJSON.event_id);
     }
-    setKey(prevKey => prevKey + 1);
+    setKey((prevKey) => prevKey + 1);
   }, [inspectedTile]);
 
   const handleDeployPosition = (event) => {
     setDeployPosition(event.target.checked);
-  }
+  };
 
   const handleActionPosition = (event) => {
     setActionPosition(event.target.checked);
-  }
+  };
 
   const saveDeployPosition = (event) => {
     if (inspectedTile) {
@@ -51,21 +51,21 @@ export default function PositionConfig() {
       const cube = selectedCubes[i];
       cube.setDeployPosition(deployPosition);
     }
-  }
+  };
 
   const saveActionPosition = (event) => {
     if (inspectedTile) {
       inspectedTile.setActionTile(actionPosition);
-      inspectedTile.tileJSON.tile_name = tileName; 
-      inspectedTile.tileJSON.event_id = eventID; 
+      inspectedTile.tileJSON.tile_name = tileName;
+      inspectedTile.tileJSON.event_id = eventID;
     }
     for (let i = 0; i < selectedCubes.length; i++) {
       const cube = selectedCubes[i];
       cube.setActionTile(actionPosition);
-      cube.tileJSON.tile_name = tileName
-      cube.tileJSON.event_id = eventID
+      cube.tileJSON.tile_name = tileName;
+      cube.tileJSON.event_id = eventID;
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={MenuTheme}>
@@ -84,23 +84,26 @@ export default function PositionConfig() {
         <Box key={key}>
           <Paper className="drawer-menu-deploy-action">
             <FormGroup>
-              <FormControlLabel 
-                control={<Checkbox/>} 
+              <FormControlLabel
+                control={<Checkbox />}
                 label="Deploy Position"
-                checked={deployPosition} 
-                onChange={handleDeployPosition} />
+                checked={deployPosition}
+                onChange={handleDeployPosition}
+              />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={saveDeployPosition}
               >
-              Save</Button>
+                Save
+              </Button>
               <Divider />
-              <FormControlLabel 
-                control={<Checkbox/> } 
+              <FormControlLabel
+                control={<Checkbox />}
                 label="Action Position"
                 checked={actionPosition}
-                onChange={handleActionPosition} />
+                onChange={handleActionPosition}
+              />
               <TextField
                 id="tileName"
                 defaultValue={mapData.tileName}
@@ -123,7 +126,9 @@ export default function PositionConfig() {
                 variant="contained"
                 color="primary"
                 onClick={saveActionPosition}
-                >Save</Button>
+              >
+                Save
+              </Button>
             </FormGroup>
           </Paper>
         </Box>
