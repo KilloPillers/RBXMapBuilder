@@ -1,49 +1,42 @@
-import * as React from 'react';
-import { useRef } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import Paper from '@mui/material/Paper';
-import { ThemeProvider } from '@mui/material/styles';
-import { MenuTheme } from '../Themes/MenuTheme';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import FormGroup from '@mui/material/FormGroup';
-import Divider from '@mui/material/Divider';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField'
-import { MyContext } from '../MyContext';
-import "./DrawerMenu.css"
+import * as React from "react";
+import { useRef } from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import Paper from "@mui/material/Paper";
+import { ThemeProvider } from "@mui/material/styles";
+import { MenuTheme } from "../Themes/MenuTheme";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import FormGroup from "@mui/material/FormGroup";
+import Divider from "@mui/material/Divider";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import { MyContext } from "../MyContext";
+import "./DrawerMenu.css";
 
 const defaultUnitData = {
-                    "unitLevel": "",
-                    "unitName": "",
-                    "classID": "",
-                    "unitID": "",
-                    "personality": "RandomAction",
-                    "deathEvent": "nil",
-                    "maxHP": "",
-                    "maxSP": "",
-                    "Atk": "",
-                    "Def": "",
-                    "Spd": "",
-                    "Hit": "",
-                    "Int": "",
-                    "Res": "",
-                    "skills": [
-                        "",
-                        "",
-                        "",
-                        ""
-                    ],
-                    "passives": [
-                        "",
-                        "",
-                        ""
-                    ]
-                }
+  unitLevel: "",
+  unitName: "",
+  classID: "",
+  unitID: "",
+  personality: "RandomAction",
+  deathEvent: "nil",
+  maxHP: "",
+  maxSP: "",
+  Atk: "",
+  Def: "",
+  Spd: "",
+  Hit: "",
+  Int: "",
+  Res: "",
+  skills: ["", "", "", ""],
+  passives: ["", "", ""],
+};
 
 export default function UnitConfig() {
-  const { mapData, updateMap, selectedCubes, unitModelRef, inspectedTile } = React.useContext(MyContext);
+  const { mapData, updateMap, selectedCubes, unitModelRef, inspectedTile } =
+    React.useContext(MyContext);
+
   const [unitName, setUnitName] = useState("");
   const [unitLevel, setUnitLevel] = useState("");
   const [classId, setClassId] = useState("");
@@ -69,7 +62,6 @@ export default function UnitConfig() {
   const [key, setKey] = useState(0);
 
   const handleDelete = () => {
-
     if (inspectedTile) {
       inspectedTile.tileJSON.unit = defaultUnitData;
       inspectedTile.removeUnit();
@@ -109,14 +101,13 @@ export default function UnitConfig() {
       setPassive1(unit.passives[0]);
       setPassive2(unit.passives[1]);
       setPassive3(unit.passives[2]);
-      setKey(prevKey => prevKey + 1); // Force re-render
+      setKey((prevKey) => prevKey + 1); // Force re-render
     }
   }, [inspectedTile]);
 
-
   const handleSave = () => {
     const unitData = {
-      unitName: unitName, 
+      unitName: unitName,
       unitLevel: unitLevel,
       classId: classId,
       unitId: unitId,
@@ -130,17 +121,8 @@ export default function UnitConfig() {
       Hit: unitHit,
       Int: unitInt,
       Res: unitRes,
-      skills: [
-        skill1,
-        skill2,
-        skill3,
-        skill4,
-      ],
-      passives: [
-        passive1,
-        passive2,
-        passive3,
-      ],
+      skills: [skill1, skill2, skill3, skill4],
+      passives: [passive1, passive2, passive3],
     };
 
     if (inspectedTile) {
@@ -163,19 +145,27 @@ export default function UnitConfig() {
 
   return (
     <ThemeProvider theme={MenuTheme}>
-      <Box className='drawer-menu-header'>
+      <Box className="drawer-menu-header">
         <Paper>
-          <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
+          <Typography
+            variant="h6"
+            color={"text.pimary"}
+            sx={{ margin: "10px" }}
+          >
             Unit Configuration
           </Typography>
         </Paper>
       </Box>
-      <Box className='drawer-menu-unit-config' key={key}>
-        <Paper> 
-          <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
+      <Box className="drawer-menu-unit-config" key={key}>
+        <Paper>
+          <Typography
+            variant="h6"
+            color={"text.pimary"}
+            sx={{ margin: "10px" }}
+          >
             Unit Profile
           </Typography>
-          <Divider/>
+          <Divider />
           <FormGroup>
             <TextField
               id="unit-name"
@@ -222,7 +212,11 @@ export default function UnitConfig() {
           </FormGroup>
         </Paper>
         <Paper>
-          <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
+          <Typography
+            variant="h6"
+            color={"text.pimary"}
+            sx={{ margin: "10px" }}
+          >
             Unit Stats
           </Typography>
           <Divider />
@@ -286,7 +280,11 @@ export default function UnitConfig() {
           </FormGroup>
         </Paper>
         <Paper>
-          <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
+          <Typography
+            variant="h6"
+            color={"text.pimary"}
+            sx={{ margin: "10px" }}
+          >
             Unit Skills
           </Typography>
           <Divider />
@@ -322,7 +320,11 @@ export default function UnitConfig() {
           </FormGroup>
         </Paper>
         <Paper>
-          <Typography variant='h6' color={'text.pimary'} sx={{margin: '10px'}}>
+          <Typography
+            variant="h6"
+            color={"text.pimary"}
+            sx={{ margin: "10px" }}
+          >
             Unit Passives
           </Typography>
           <Divider />
@@ -354,27 +356,18 @@ export default function UnitConfig() {
       </Box>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-evenly',
-          marginBottom: '25px',
+          display: "flex",
+          justifyContent: "space-evenly",
+          marginBottom: "25px",
         }}
       >
-        <Button 
-          variant="contained" 
-          color="success"
-          onClick={handleSave}
-        >
+        <Button variant="contained" color="success" onClick={handleSave}>
           Save Unit
         </Button>
-        <Button 
-          variant="contained" 
-          color="error"
-          onClick={handleDelete}
-        >
+        <Button variant="contained" color="error" onClick={handleDelete}>
           Delete Unit
         </Button>
       </Box>
     </ThemeProvider>
   );
 }
-

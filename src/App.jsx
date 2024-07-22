@@ -17,52 +17,54 @@ function App() {
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [selectedCubes, setSelectedCubes] = useState([]);
   const unitModelRef = React.useRef();
-  const [tool, setTool] = React.useState('inspect');
+  const [tool, setTool] = React.useState("inspect");
   const [inspectedTile, setInspectedTile] = React.useState(null);
-  
+
   const updateMap = (newMapData) => {
     setMapData(newMapData);
-  }
+  };
 
   useEffect(() => {
     // Load the unit model
     const loader = new OBJLoader();
-    loader.load('/models/rbxdefaultmodel.obj', function (object) {
+    loader.load("/models/rbxdefaultmodel.obj", function (object) {
       // Create a group to add to the model to
       const modelGroup = new THREE.Group();
       modelGroup.add(object);
 
       // Apply initial scale and rotation to the model
-      modelGroup.scale.set(.25, .25, .25);
+      modelGroup.scale.set(0.25, 0.25, 0.25);
       modelGroup.rotation.y = Math.PI / 2;
-      unitModelRef.current = modelGroup; 
+      unitModelRef.current = modelGroup;
       console.log("Unit model loaded");
     });
 
     setIsModelsLoaded(true);
-  },[])
+  }, []);
 
   return (
-    <MyContext.Provider 
-      value={{ mapData, 
-        updateMap, 
-        selectedCubes, 
-        setSelectedCubes, 
-        drawerOpen, 
+    <MyContext.Provider
+      value={{
+        mapData,
+        updateMap,
+        selectedCubes,
+        setSelectedCubes,
+        drawerOpen,
         setDrawerOpen,
         isModelsLoaded,
         unitModelRef,
         tool,
         setTool,
         inspectedTile,
-        setInspectedTile
-    }}>
+        setInspectedTile,
+      }}
+    >
       <div className="app">
         <div className="scene">
-          <MapScene/>
+          <MapScene />
         </div>
-        <Overlay/> 
-      </div> 
+        <Overlay />
+      </div>
     </MyContext.Provider>
   );
 }

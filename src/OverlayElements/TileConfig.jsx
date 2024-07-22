@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { MyContext } from "../MyContext"
+import { MyContext } from "../MyContext";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
 import { MenuTheme } from "../Themes/MenuTheme";
@@ -25,8 +25,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import IconButton from "@mui/material/IconButton";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import BarChartIcon from '@mui/icons-material/BarChart';
-import ViewWeekIcon from '@mui/icons-material/ViewWeek';
+import BarChartIcon from "@mui/icons-material/BarChart";
+import ViewWeekIcon from "@mui/icons-material/ViewWeek";
 import "./DrawerMenu.css";
 
 const buttons = [];
@@ -40,7 +40,7 @@ export default function TileConfig() {
   const [minHeight, setMinHeight] = React.useState(-1);
   const [mode, setMode] = React.useState("uniform");
 
-  useEffect(() => { 
+  useEffect(() => {
     if (selectedCubes.length > 0 || inspectedTile) {
       // Find Median Height
       let totalHeight = 0;
@@ -53,18 +53,18 @@ export default function TileConfig() {
         totalHeight += selectedCubes[i].tileJSON.tile_height;
         numTiles++;
       }
-      // Round to 2 decimal places 
-      let medianHeight = Math.round((totalHeight/numTiles) * 100) / 100;
+      // Round to 2 decimal places
+      let medianHeight = Math.round((totalHeight / numTiles) * 100) / 100;
       setHeight(Math.round(medianHeight));
       // Set decimal height
       // Round to 2 decimal places
-      let decimalHeight = Math.round((medianHeight - Math.floor(medianHeight)) * 100) / 100;
+      let decimalHeight =
+        Math.round((medianHeight - Math.floor(medianHeight)) * 100) / 100;
       setDecimalHeight(decimalHeight);
       setOldHeight(medianHeight);
-      setMaxHeight(2*Math.ceil(medianHeight-minHeight));
+      setMaxHeight(2 * Math.ceil(medianHeight - minHeight));
     }
   }, [selectedCubes, inspectedTile]);
-
 
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -74,28 +74,25 @@ export default function TileConfig() {
 
   const handleChangeHeight = (event, newValue) => {
     // Combine decimal and whole number
-    let newHeight = 0
+    let newHeight = 0;
     if (event.target.name === "tile-height-decimal") {
       newHeight = height + newValue;
-    }
-    else if (event.target.name === "tile-height") {
+    } else if (event.target.name === "tile-height") {
       newHeight = newValue;
     }
 
     if (mode === "discrete") {
-      
       let delta = newHeight - oldHeight;
       if (inspectedTile) {
         inspectedTile.updateHeight(newHeight);
       }
       for (let i = 0; i < selectedCubes.length; i++) {
-        let newHeight = (selectedCubes[i].tileJSON.tile_height + delta);
+        let newHeight = selectedCubes[i].tileJSON.tile_height + delta;
         // convert to 2 decimal places
         newHeight = Math.round(newHeight * 100) / 100;
         selectedCubes[i].updateHeight(newHeight);
       }
-    }
-    else {
+    } else {
       if (inspectedTile) {
         inspectedTile.updateHeight(newHeight);
       }
@@ -106,8 +103,7 @@ export default function TileConfig() {
     setOldHeight(newHeight);
     if (event.target.name === "tile-height") {
       setHeight(newValue);
-    }
-    else if (event.target.name === "tile-height-decimal") {
+    } else if (event.target.name === "tile-height-decimal") {
       setDecimalHeight(newValue);
     }
   };
@@ -204,11 +200,14 @@ export default function TileConfig() {
                 }}
                 onKeyDown={preventHorizontalKeyboardNavigation}
               />
-              <Typography 
+              <Typography
                 sx={{
                   paddingTop: "10px",
                 }}
-                id="vertical-slider" gutterBottom fontSize={10}>
+                id="vertical-slider"
+                gutterBottom
+                fontSize={10}
+              >
                 {height}
               </Typography>
             </Paper>
@@ -222,11 +221,11 @@ export default function TileConfig() {
                 }}
                 orientation="vertical"
                 min={0}
-                max={.99}
+                max={0.99}
                 value={decimalHeight}
                 name="tile-height-decimal"
                 defaultValue={0}
-                step={.01}
+                step={0.01}
                 aria-label="Tile Height Decimal"
                 valueLabelDisplay="auto"
                 onChange={(event, newValue) => {
@@ -234,88 +233,87 @@ export default function TileConfig() {
                 }}
                 onKeyDown={preventHorizontalKeyboardNavigation}
               />
-              <Typography 
+              <Typography
                 sx={{
                   paddingTop: "10px",
                 }}
-                id="vertical-slider" gutterBottom fontSize={10}>
+                id="vertical-slider"
+                gutterBottom
+                fontSize={10}
+              >
                 {decimalHeight}
               </Typography>
             </Paper>
-          <Box>
+            <Box>
               <Box
                 sx={{
                   height: "125px",
                   padding: "auto",
                 }}
               >
-            <ToggleButtonGroup
-              value={mode}
-              exclusive
-              orientation="vertical"
-              onChange={(event, newMode) => setMode(newMode)}
-              aria-label="text alignment"
-            >
-              <ToggleButton value="uniform" aria-label="left aligned">
-                <ViewWeekIcon
-                  color="primary"
-                />
-              </ToggleButton>
-              <ToggleButton value="discrete" aria-label="centered">
-                <BarChartIcon
-                  color="primary"
-                />
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-            <Paper>
-              <ButtonGroup
-                className="drawer-menu-slider-delta"
-                size="small"
-                aria-label="Small button group"
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingRight: "10px",
-                  }}
+                <ToggleButtonGroup
+                  value={mode}
+                  exclusive
+                  orientation="vertical"
+                  onChange={(event, newMode) => setMode(newMode)}
+                  aria-label="text alignment"
                 >
-                  <IconButton
-                    key="left2"
-                    color="primary"
-                    onClick={(event) => handleChangeHeight(event, 1)}
-                  >
-                    {" "}
-                    <KeyboardArrowUpIcon />{" "}
-                  </IconButton>
-                  <Typography>+1</Typography>
-                </Box>
-                <Divider color="primary" />
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingRight: "10px",
-                  }}
+                  <ToggleButton value="uniform" aria-label="left aligned">
+                    <ViewWeekIcon color="primary" />
+                  </ToggleButton>
+                  <ToggleButton value="discrete" aria-label="centered">
+                    <BarChartIcon color="primary" />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+              <Paper>
+                <ButtonGroup
+                  className="drawer-menu-slider-delta"
+                  size="small"
+                  aria-label="Small button group"
                 >
-                  <IconButton
-                    key="left2"
-                    color="primary"
-                    onClick={(event) => handleChangeHeight(event, -1)}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingRight: "10px",
+                    }}
                   >
-                    {" "}
-                    <KeyboardArrowDownIcon />{" "}
-                  </IconButton>
-                  <Typography>-1</Typography>
-                </Box>
-              </ButtonGroup>
-            </Paper>
-          </Box>
+                    <IconButton
+                      key="left2"
+                      color="primary"
+                      onClick={(event) => handleChangeHeight(event, 1)}
+                    >
+                      {" "}
+                      <KeyboardArrowUpIcon />{" "}
+                    </IconButton>
+                    <Typography>+1</Typography>
+                  </Box>
+                  <Divider color="primary" />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingRight: "10px",
+                    }}
+                  >
+                    <IconButton
+                      key="left2"
+                      color="primary"
+                      onClick={(event) => handleChangeHeight(event, -1)}
+                    >
+                      {" "}
+                      <KeyboardArrowDownIcon />{" "}
+                    </IconButton>
+                    <Typography>-1</Typography>
+                  </Box>
+                </ButtonGroup>
+              </Paper>
+            </Box>
           </Box>
           <Paper>
             <ButtonGroup

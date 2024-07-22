@@ -18,86 +18,79 @@ import LayersIcon from "@mui/icons-material/Layers";
 import UnitConfig from "./UnitConfig";
 import PositionConfig from "./PositionConfig";
 import NotListedLocationIcon from "@mui/icons-material/NotListedLocation";
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 export default function DrawerMenu() {
-  const { mapData, updateMap, selectedCubes, drawerOpen, setDrawerOpen } = React.useContext(MyContext);
+  const { mapData, updateMap, selectedCubes, drawerOpen, setDrawerOpen } =
+    React.useContext(MyContext);
   const [menu, setMenu] = useState("tile-config"); // ['unit-config', 'tile-config'
-  
+
   const stopPropagation = (e) => {
     e.stopPropagation();
-  }
+  };
 
   return (
     <ThemeProvider theme={MenuTheme}>
-      <Box
-        className={`drawer-menu-container ${drawerOpen ? "open" : ""}`}
-        
-      >
+      <Box className={`drawer-menu-container ${drawerOpen ? "open" : ""}`}>
         <Box className="drawer-menu-side-panel">
           <Paper
             onMouseUp={(e) => {
-              stopPropagation(e)
+              stopPropagation(e);
             }}
           >
-          <Paper>
-            <IconButton
-              children={<GridViewIcon />}
-              color="primary"
-              onClick={() => {
-                setMenu("tile-config")
-                setDrawerOpen(true)
-              }}
-            />
-          </Paper>
-          <Divider/>
-          <Paper>
-            <IconButton
-              children={<ManageAccountsIcon />}
-              color="primary"
-              onClick={() => {
-                setMenu("unit-config")
-                setDrawerOpen(true)
-              }}
-            />
-          </Paper>
-          <Divider />
-          <Paper>
-            <IconButton
-              children={<NotListedLocationIcon />}
-              color="primary"
-              onClick={() => {
-                setMenu("position-config")
-                setDrawerOpen(true)
-              }}
-            />
-          </Paper>
-          <Divider />
-          <Paper>
-            <IconButton 
-              children={<SwapHorizIcon />}
-              color="primary"
-              onClick={() => {
-                setDrawerOpen(!drawerOpen)
-              }}>
-            </IconButton>
-          </Paper>
+            <Paper>
+              <IconButton
+                children={<GridViewIcon />}
+                color="primary"
+                onClick={() => {
+                  setMenu("tile-config");
+                  setDrawerOpen(true);
+                }}
+              />
+            </Paper>
+            <Divider />
+            <Paper>
+              <IconButton
+                children={<ManageAccountsIcon />}
+                color="primary"
+                onClick={() => {
+                  setMenu("unit-config");
+                  setDrawerOpen(true);
+                }}
+              />
+            </Paper>
+            <Divider />
+            <Paper>
+              <IconButton
+                children={<NotListedLocationIcon />}
+                color="primary"
+                onClick={() => {
+                  setMenu("position-config");
+                  setDrawerOpen(true);
+                }}
+              />
+            </Paper>
+            <Divider />
+            <Paper>
+              <IconButton
+                children={<SwapHorizIcon />}
+                color="primary"
+                onClick={() => {
+                  setDrawerOpen(!drawerOpen);
+                }}
+              ></IconButton>
+            </Paper>
           </Paper>
         </Box>
-        <Box className="drawer-menu"
-        onMouseUp={(e) => {
-          stopPropagation(e)
-        }}
+        <Box
+          className="drawer-menu"
+          onMouseUp={(e) => {
+            stopPropagation(e);
+          }}
         >
-          {menu === "unit-config" && (
-            <UnitConfig/>
-          )}
-          {menu === "tile-config" && (
-            <TileConfig/>
-          )}
-          {menu === "position-config" && (
-            <PositionConfig/>
-          )}
+          {menu === "unit-config" && <UnitConfig />}
+          {menu === "tile-config" && <TileConfig />}
+          {menu === "position-config" && <PositionConfig />}
         </Box>
       </Box>
     </ThemeProvider>
