@@ -134,6 +134,41 @@ export default class Tile extends THREE.Object3D {
 		this.cube.position.z = z;
 	}
 
+	swapTileJSON(newTileJSON) {
+		// This function is used to swap the tileJSON object with a new one
+		// This is useful when the tile is being moved to a new position
+		// and the tileJSON object needs to be updated WITHOUT updating the tileJSON.x and tileJSON.y
+		const prvX = this.tileJSON.tile_position[0];
+		const prvY = this.tileJSON.tile_position[1];
+		this.tileJSON = newTileJSON;
+		this.tileJSON.tile_position = [prvX, prvY];
+		this.has_unit = this.tileJSON.has_unit;
+		this.updateColor();
+		this.updateHeight(this.tileJSON.tile_height);
+		if (this.has_unit) {
+			this.addUnit(this.unitModel);
+		} else {
+			this.removeUnit();
+		}
+	}
+
+	resetTile() {
+		// This function initialized the tile based on the tileJSON object
+		this.updateColor();
+		this.updateHeight(this.tileJSON.tile_height);
+		if (this.has_unit) {
+			this.addUnit(this.unitModel);
+		} else {
+			this.removeUnit();
+		}
+		if (this.tileJSON.is_deploy_position) {
+			this.setDeployPosition(true);
+		}
+		if (this.tileJSON.is_action_tile) {
+			this.setActionTile(true);
+		}
+	}
+
 	updateColor() {
 		let colorHex;
 
@@ -220,6 +255,6 @@ export default class Tile extends THREE.Object3D {
 		} else {
 			this.cube.material.transparent = false;
 			this.cube.material.opacity = 1;
-		}	
+		}
 	}
 }

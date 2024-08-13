@@ -21,6 +21,9 @@ const BLOOM_SCENE = 1;
 function MapScene() {
   const {
     mapData,
+    setMapData,
+    mapDataCopy,
+    setMapDataCopy,
     selectedCubes,
     setSelectedCubes,
     drawerOpen,
@@ -51,7 +54,7 @@ function MapScene() {
 
   const cubes = [];
 
-  const moveTileGroup = (selectedCubes, direction) => {
+  const moveTileGroup = (direction) => {
     // Down means y decreases, up means y increases
     // Left means x decreases, right means x increases
 
@@ -113,39 +116,95 @@ function MapScene() {
 
     console.log("Translated Arrow Key: ", direction);
 
+    console.log("Map Data: ", mapData);
+
+    for (let cube of selectedCubes) {
+      // Copy tile data from the mapDataCopy to the mapData
+      const newMapData = { ...mapData };
+    }
+
+    // Check to see if no selected cube is on the edge
+    for (let cube of selectedCubes) {
+      if (direction === "up" && cube.tileJSON.tile_position[1] === 0) {
+        console.log("Cannot move up");
+        return;
+      }
+      if (
+        direction === "down" &&
+        cube.tileJSON.tile_position[1] === mapData.height - 1
+      ) {
+        console.log("Cannot move down");
+        return;
+      }
+      if (direction === "left" && cube.tileJSON.tile_position[0] === 0) {
+        console.log("Cannot move left");
+        return;
+      }
+      if (
+        direction === "right" &&
+        cube.tileJSON.tile_position[0] === mapData.width - 1
+      ) {
+        console.log("Cannot move right");
+        return;
+      }
+    }
+
+    console.log("cubes: ", cubesRef.current);
     // Move the selected cubes in the direction
     for (let cube of selectedCubes) {
+      console.log("Moving cube: ", cube);
       if (direction === "up") {
-        cube.position.z += 10;
+        // Find the cube that is going to be swapped with
+        const x = cube.tileJSON.tile_position[0];
+        const y = cube.tileJSON.tile_position[1] - 1;
+        console.log("x: ", x, "y: ", y);
+        const swapCube = cubesRef.current[y * mapData.width + x];
+        console.log("Swap Cube: ", swapCube);
+        swapCube.swapTileJSON(cube.tileJSON);
       } else if (direction === "down") {
-        cube.position.z -= 10;
+        // Find the cube that is going to be swapped with
+        const x = cube.tileJSON.tile_position[0];
+        const y = cube.tileJSON.tile_position[1] + 1;
+        console.log("x: ", x, "y: ", y);
+        const swapCube = cubesRef.current[y * mapData.width + x];
+        console.log("Swap Cube: ", swapCube);
+        swapCube.swapTileJSON(cube.tileJSON);
       } else if (direction === "left") {
-        cube.position.x -= 10;
+        // Find the cube that is going to be swapped with
+        const x = cube.tileJSON.tile_position[0] - 1;
+        const y = cube.tileJSON.tile_position[1];
+        console.log("x: ", x, "y: ", y);
+        const swapCube = cubesRef.current[y * mapData.width + x];
+        console.log("Swap Cube: ", swapCube);
+        swapCube.swapTileJSON(cube.tileJSON);
       } else if (direction === "right") {
-        cube.position.x += 10;
+        // Find the cube that is going to be swapped with
+        const x = cube.tileJSON.tile_position[0] + 1;
+        const y = cube.tileJSON.tile_position[1];
+        console.log("x: ", x, "y: ", y);
+        const swapCube = cubesRef.current[y * mapData.width + x];
+        console.log("Swap Cube: ", swapCube);
+        swapCube.swapTileJSON(cube.tileJSON);
       }
     }
   };
 
   // Add arrow key event listener
-  const onKeyDown = useCallback(
-    (event) => {
-      console.log("Selected Cubes: ", selectedCubes);
-      if (event.key === "ArrowUp") {
-        moveTileGroup(selectedCubes, "up");
-      }
-      if (event.key === "ArrowDown") {
-        moveTileGroup(selectedCubes, "down");
-      }
-      if (event.key === "ArrowLeft") {
-        moveTileGroup(selectedCubes, "left");
-      }
-      if (event.key === "ArrowRight") {
-        moveTileGroup(selectedCubes, "right");
-      }
-    },
-    [selectedCubes]
-  );
+  const onKeyDown = (event) => {
+    console.log("Selected Cubes: ", selectedCubes);
+    if (event.key === "ArrowUp") {
+      moveTileGroup("up");
+    }
+    if (event.key === "ArrowDown") {
+      moveTileGroup("down");
+    }
+    if (event.key === "ArrowLeft") {
+      moveTileGroup("left");
+    }
+    if (event.key === "ArrowRight") {
+      moveTileGroup("right");
+    }
+  };
 
   // Add Click event listener to window
   const onCanvasClick = useCallback(
@@ -248,6 +307,7 @@ function MapScene() {
       // Clean up event listeners
       window.removeEventListener("mousedown", onCanvasClick);
       window.removeEventListener("mouseup", onCanvasClick);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [tool, inspectedTile]);
 
