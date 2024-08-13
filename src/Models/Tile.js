@@ -212,4 +212,14 @@ export default class Tile extends THREE.Object3D {
 		this.tileJSON.is_action_tile = isActionTile;
 		this.updateColor();
 	}
+
+	setTransparent(isTransparent) {
+		if (isTransparent) {
+			this.cube.material.transparent = true;
+			this.cube.material.opacity = 0.5;
+		} else {
+			this.cube.material.transparent = false;
+			this.cube.material.opacity = 1;
+		}	
+	}
 }

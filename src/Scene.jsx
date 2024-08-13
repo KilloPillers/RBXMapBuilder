@@ -51,6 +51,102 @@ function MapScene() {
 
   const cubes = [];
 
+  const moveTileGroup = (selectedCubes, direction) => {
+    // Down means y decreases, up means y increases
+    // Left means x decreases, right means x increases
+
+    // Get the camera direction
+    const cameraDirection = new THREE.Vector3();
+    cameraRef.current.getWorldDirection(cameraDirection);
+    // Normalize the camera direction
+    cameraDirection.normalize();
+    // Log the camera direction
+    console.log("Pressed Arrow Key: ", direction);
+    console.log(cameraDirection);
+    // Figure out which direction to move the tiles based on the camera direction
+    // Magnitude of the camera direction vector
+    // If the camera direction is mostly in the x direction
+    if (Math.abs(cameraDirection.x) > Math.abs(cameraDirection.z)) {
+      if (cameraDirection.x > 0) {
+        if (direction === "left") {
+          direction = "down";
+        } else if (direction === "right") {
+          direction = "up";
+        } else if (direction === "up") {
+          direction = "right";
+        } else if (direction === "down") {
+          direction = "left";
+        }
+      } else {
+        if (direction === "left") {
+          direction = "up";
+        } else if (direction === "right") {
+          direction = "down";
+        } else if (direction === "up") {
+          direction = "left";
+        } else if (direction === "down") {
+          direction = "right";
+        }
+      }
+    }
+    // If the camera direction is mostly in the z direction
+    else {
+      if (cameraDirection.z > 0) {
+        if (direction === "left") {
+          direction = "right";
+        } else if (direction === "right") {
+          direction = "left";
+        } else if (direction === "up") {
+          direction = "down";
+        }
+        if (direction === "down") {
+          direction = "up";
+        } else {
+          if (direction === "left") {
+            direction = "right";
+          } else if (direction === "right") {
+            direction = "left";
+          }
+        }
+      }
+    }
+
+    console.log("Translated Arrow Key: ", direction);
+
+    // Move the selected cubes in the direction
+    for (let cube of selectedCubes) {
+      if (direction === "up") {
+        cube.position.z += 10;
+      } else if (direction === "down") {
+        cube.position.z -= 10;
+      } else if (direction === "left") {
+        cube.position.x -= 10;
+      } else if (direction === "right") {
+        cube.position.x += 10;
+      }
+    }
+  };
+
+  // Add arrow key event listener
+  const onKeyDown = useCallback(
+    (event) => {
+      console.log("Selected Cubes: ", selectedCubes);
+      if (event.key === "ArrowUp") {
+        moveTileGroup(selectedCubes, "up");
+      }
+      if (event.key === "ArrowDown") {
+        moveTileGroup(selectedCubes, "down");
+      }
+      if (event.key === "ArrowLeft") {
+        moveTileGroup(selectedCubes, "left");
+      }
+      if (event.key === "ArrowRight") {
+        moveTileGroup(selectedCubes, "right");
+      }
+    },
+    [selectedCubes]
+  );
+
   // Add Click event listener to window
   const onCanvasClick = useCallback(
     (event) => {
@@ -144,8 +240,10 @@ function MapScene() {
   );
 
   useEffect(() => {
+    // Add event listeners
     window.addEventListener("mousedown", onCanvasClick);
     window.addEventListener("mouseup", onCanvasClick);
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       // Clean up event listeners
       window.removeEventListener("mousedown", onCanvasClick);

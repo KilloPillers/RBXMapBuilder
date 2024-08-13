@@ -13,6 +13,8 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 export default function ToolBar() {
   const { tool, setTool } = React.useContext(MyContext);
+  const { mapDataCopy, setMapDataCopy } = React.useContext(MyContext);
+  const { selectedCubes, setSelectedCubes } = React.useContext(MyContext);
 
   const stopPropagation = (e) => {
     e.stopPropagation();
@@ -24,6 +26,11 @@ export default function ToolBar() {
 
   useEffect(() => {
     console.log("Tool: ", tool);
+    if (tool === "move") {
+      console.log("Selected cubes: ", selectedCubes);
+      for (let cube of selectedCubes) {
+      }
+    }
   }, [tool]);
 
   return (
