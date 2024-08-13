@@ -72,9 +72,9 @@ function MapScene() {
     if (Math.abs(cameraDirection.x) > Math.abs(cameraDirection.z)) {
       if (cameraDirection.x > 0) {
         if (direction === "left") {
-          direction = "down";
-        } else if (direction === "right") {
           direction = "up";
+        } else if (direction === "right") {
+          direction = "down";
         } else if (direction === "up") {
           direction = "right";
         } else if (direction === "down") {
@@ -82,9 +82,9 @@ function MapScene() {
         }
       } else {
         if (direction === "left") {
-          direction = "up";
-        } else if (direction === "right") {
           direction = "down";
+        } else if (direction === "right") {
+          direction = "up";
         } else if (direction === "up") {
           direction = "left";
         } else if (direction === "down") {
@@ -95,14 +95,9 @@ function MapScene() {
     // If the camera direction is mostly in the z direction
     else {
       if (cameraDirection.z > 0) {
-        if (direction === "left") {
-          direction = "right";
-        } else if (direction === "right") {
-          direction = "left";
-        } else if (direction === "up") {
+        if (direction === "up") {
           direction = "down";
-        }
-        if (direction === "down") {
+        } else if (direction === "down") {
           direction = "up";
         } else {
           if (direction === "left") {
@@ -115,13 +110,6 @@ function MapScene() {
     }
 
     console.log("Translated Arrow Key: ", direction);
-
-    console.log("Map Data: ", mapData);
-
-    for (let cube of selectedCubes) {
-      // Copy tile data from the mapDataCopy to the mapData
-      const newMapData = { ...mapData };
-    }
 
     // Check to see if no selected cube is on the edge
     for (let cube of selectedCubes) {
@@ -149,43 +137,45 @@ function MapScene() {
       }
     }
 
-    console.log("cubes: ", cubesRef.current);
     // Move the selected cubes in the direction
     for (let cube of selectedCubes) {
-      console.log("Moving cube: ", cube);
+      // In the code below, x and y are inverted from the way they are stored in the map data.
+      // and the way they where instantiated in the scene
+      let swapCube = null;
       if (direction === "up") {
         // Find the cube that is going to be swapped with
         const x = cube.tileJSON.tile_position[0];
         const y = cube.tileJSON.tile_position[1] - 1;
-        console.log("x: ", x, "y: ", y);
-        const swapCube = cubesRef.current[y * mapData.width + x];
-        console.log("Swap Cube: ", swapCube);
-        swapCube.swapTileJSON(cube.tileJSON);
+        swapCube = cubesRef.current[x * mapData.height + y];
       } else if (direction === "down") {
         // Find the cube that is going to be swapped with
         const x = cube.tileJSON.tile_position[0];
         const y = cube.tileJSON.tile_position[1] + 1;
-        console.log("x: ", x, "y: ", y);
-        const swapCube = cubesRef.current[y * mapData.width + x];
-        console.log("Swap Cube: ", swapCube);
-        swapCube.swapTileJSON(cube.tileJSON);
+        swapCube = cubesRef.current[x * mapData.height + y];
       } else if (direction === "left") {
         // Find the cube that is going to be swapped with
         const x = cube.tileJSON.tile_position[0] - 1;
         const y = cube.tileJSON.tile_position[1];
-        console.log("x: ", x, "y: ", y);
-        const swapCube = cubesRef.current[y * mapData.width + x];
-        console.log("Swap Cube: ", swapCube);
-        swapCube.swapTileJSON(cube.tileJSON);
+        swapCube = cubesRef.current[x * mapData.height + y];
       } else if (direction === "right") {
         // Find the cube that is going to be swapped with
         const x = cube.tileJSON.tile_position[0] + 1;
         const y = cube.tileJSON.tile_position[1];
-        console.log("x: ", x, "y: ", y);
-        const swapCube = cubesRef.current[y * mapData.width + x];
-        console.log("Swap Cube: ", swapCube);
-        swapCube.swapTileJSON(cube.tileJSON);
+        swapCube = cubesRef.current[x * mapData.height + y];
       }
+      //
+      swapCube.swapTileJSON(cube.tileJSON);
+      // Remove the cube from the selected cubes
+      setSelectedCubes((prevSelectedCubes) =>
+        prevSelectedCubes.filter((selectedCube) => selectedCube !== cube)
+      );
+      // Add the swap cube to the selected cubes
+      setSelectedCubes((prevSelectedCubes) => [...prevSelectedCubes, swapCube]);
+
+      swapCube.is_selected = true;
+      swapCube.resetTile();
+      cube.is_selected = false;
+      cube.resetTile();
     }
   };
 
@@ -254,19 +244,20 @@ function MapScene() {
             if (inspectedTile === selectedObject) {
               setInspectedTile(null);
               selectedObject.is_inspected = false;
-              selectedObject.getMesh().layers.disable(BLOOM_SCENE);
+              selectedObject.updateColor();
+              //selectedObject.getMesh().layers.disable(BLOOM_SCENE);
               if (selectedObject !== inspectedTile) {
-                selectedObject.getMesh().layers.disable(BLOOM_SCENE);
               }
             } else {
               if (inspectedTile) {
                 inspectedTile.is_inspected = false;
-                inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
+                //inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
                 inspectedTile.updateColor();
               }
               setInspectedTile(selectedObject);
-              selectedObject.getMesh().layers.enable(BLOOM_SCENE);
+              //selectedObject.getMesh().layers.enable(BLOOM_SCENE);
               selectedObject.is_inspected = true;
+              selectedObject.updateColor();
             }
             selectedObject.updateColor();
           }
@@ -284,7 +275,7 @@ function MapScene() {
                 );
               } else {
                 selectedObject.is_selected = true;
-                tileIntersects[0].object.layers.enable(BLOOM_SCENE);
+                //tileIntersects[0].object.layers.enable(BLOOM_SCENE);
                 selectedObject.updateColor();
                 return [...prevSelectedCubes, selectedObject];
               }
@@ -499,7 +490,9 @@ function MapScene() {
     }
 
     for (let i = 0; i < width; i++) {
+      // Width is the V
       for (let j = 0; j < height; j++) {
+        // Height is ->
         // Create a cube
         const tileData = map[i][j];
         const cube = new Tile(tileData);
@@ -512,6 +505,9 @@ function MapScene() {
         if (tileData.has_unit) {
           cube.addUnit(unitModelRef.current);
         }
+        console.log(
+          `Pushing cube at (${i}, ${j}) to index: ${cubesRef.current.length}`
+        );
         cubesRef.current.push(cube);
         scene.add(cube);
       }

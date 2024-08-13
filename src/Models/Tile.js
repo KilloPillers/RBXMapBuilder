@@ -7,6 +7,7 @@ import * as THREE from "three";
 
 import { init } from "../Shaders/edgeFinder";
 
+const BLOOM_SCENE = 1;
 const ACTION_TILE_COLOR = new THREE.Vector4(1, 0, 0, 1);
 const DEPLOY_TILE_COLOR = new THREE.Vector4(0, 0, 1, 1);
 const INSPECTED_TILE_COLOR = new THREE.Vector4(1, 165 / 255, 0, 1);
@@ -143,13 +144,7 @@ export default class Tile extends THREE.Object3D {
 		this.tileJSON = newTileJSON;
 		this.tileJSON.tile_position = [prvX, prvY];
 		this.has_unit = this.tileJSON.has_unit;
-		this.updateColor();
-		this.updateHeight(this.tileJSON.tile_height);
-		if (this.has_unit) {
-			this.addUnit(this.unitModel);
-		} else {
-			this.removeUnit();
-		}
+		this.resetTile();
 	}
 
 	resetTile() {
@@ -184,6 +179,11 @@ export default class Tile extends THREE.Object3D {
 			colorHex = DEFAULT_TILE_COLOR;
 		}
 		this.cube.material.uniforms.dynamicFgColor.value = colorHex;
+		if (colorHex !== DEFAULT_TILE_COLOR) {
+			this.cube.layers.enable(BLOOM_SCENE);
+		} else {
+			this.cube.layers.disable(BLOOM_SCENE);
+		}
 	}
 
 	updateDeployPosition() {
