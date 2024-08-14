@@ -63,9 +63,6 @@ function MapScene() {
     cameraRef.current.getWorldDirection(cameraDirection);
     // Normalize the camera direction
     cameraDirection.normalize();
-    // Log the camera direction
-    console.log("Pressed Arrow Key: ", direction);
-    console.log(cameraDirection);
     // Figure out which direction to move the tiles based on the camera direction
     // Magnitude of the camera direction vector
     // If the camera direction is mostly in the x direction
@@ -108,8 +105,6 @@ function MapScene() {
         }
       }
     }
-
-    console.log("Translated Arrow Key: ", direction);
 
     // Check to see if no selected cube is on the edge
     for (let cube of selectedCubes) {
@@ -174,27 +169,39 @@ function MapScene() {
 
       swapCube.is_selected = true;
       swapCube.resetTile();
+      // replace the cube tileJSON with the old tileJSON from mapDataCopy
+      cube.tileJSON = {
+        ...mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
+          cube.tileJSON.tile_position[1]
+        ],
+      };
       cube.is_selected = false;
       cube.resetTile();
     }
   };
 
   // Add arrow key event listener
-  const onKeyDown = (event) => {
-    console.log("Selected Cubes: ", selectedCubes);
-    if (event.key === "ArrowUp") {
-      moveTileGroup("up");
-    }
-    if (event.key === "ArrowDown") {
-      moveTileGroup("down");
-    }
-    if (event.key === "ArrowLeft") {
-      moveTileGroup("left");
-    }
-    if (event.key === "ArrowRight") {
-      moveTileGroup("right");
-    }
-  };
+  const onKeyDown = useCallback(
+    (event) => {
+      if (event.key === "ArrowUp") {
+        moveTileGroup("up");
+      }
+      if (event.key === "ArrowDown") {
+        moveTileGroup("down");
+      }
+      if (event.key === "ArrowLeft") {
+        moveTileGroup("left");
+      }
+      if (event.key === "ArrowRight") {
+        moveTileGroup("right");
+      }
+      // On spacebar press, show debug info
+      if (event.key === " ") {
+        console.log("Selected Cubes: ", selectedCubes);
+      }
+    },
+    [selectedCubes]
+  );
 
   // Add Click event listener to window
   const onCanvasClick = useCallback(
@@ -245,17 +252,14 @@ function MapScene() {
               setInspectedTile(null);
               selectedObject.is_inspected = false;
               selectedObject.updateColor();
-              //selectedObject.getMesh().layers.disable(BLOOM_SCENE);
               if (selectedObject !== inspectedTile) {
               }
             } else {
               if (inspectedTile) {
                 inspectedTile.is_inspected = false;
-                //inspectedTile.getMesh().layers.disable(BLOOM_SCENE);
                 inspectedTile.updateColor();
               }
               setInspectedTile(selectedObject);
-              //selectedObject.getMesh().layers.enable(BLOOM_SCENE);
               selectedObject.is_inspected = true;
               selectedObject.updateColor();
             }
@@ -275,7 +279,6 @@ function MapScene() {
                 );
               } else {
                 selectedObject.is_selected = true;
-                //tileIntersects[0].object.layers.enable(BLOOM_SCENE);
                 selectedObject.updateColor();
                 return [...prevSelectedCubes, selectedObject];
               }
@@ -293,14 +296,21 @@ function MapScene() {
     // Add event listeners
     window.addEventListener("mousedown", onCanvasClick);
     window.addEventListener("mouseup", onCanvasClick);
-    window.addEventListener("keydown", onKeyDown);
     return () => {
       // Clean up event listeners
       window.removeEventListener("mousedown", onCanvasClick);
       window.removeEventListener("mouseup", onCanvasClick);
-      window.removeEventListener("keydown", onKeyDown);
     };
   }, [tool, inspectedTile]);
+
+  useEffect(() => {
+    // Add onKeyDown event listener
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onKeyDown]);
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -502,8 +512,9 @@ function MapScene() {
         );
         cube.updateHeight(tileData.tile_height);
         cube.updateColor();
+        cube.unitModelRef = unitModelRef.current;
         if (tileData.has_unit) {
-          cube.addUnit(unitModelRef.current);
+          cube.addUnit();
         }
         console.log(
           `Pushing cube at (${i}, ${j}) to index: ${cubesRef.current.length}`

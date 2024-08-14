@@ -27,6 +27,8 @@ export default class Tile extends THREE.Object3D {
 		this.is_selected = false;
 		this.is_inspected = false;
 		this.has_unit = false; // Flag is set to false initially so that addUnit can be called
+		this.unitModelRef = null;
+		this.unitModel = null;
 		this.config = {
 			width: 0.05,
 			alpha: true,
@@ -141,9 +143,8 @@ export default class Tile extends THREE.Object3D {
 		// and the tileJSON object needs to be updated WITHOUT updating the tileJSON.x and tileJSON.y
 		const prvX = this.tileJSON.tile_position[0];
 		const prvY = this.tileJSON.tile_position[1];
-		this.tileJSON = newTileJSON;
+		this.tileJSON = { ...newTileJSON }; // Copy the newTileJSON object
 		this.tileJSON.tile_position = [prvX, prvY];
-		this.has_unit = this.tileJSON.has_unit;
 		this.resetTile();
 	}
 
@@ -151,8 +152,8 @@ export default class Tile extends THREE.Object3D {
 		// This function initialized the tile based on the tileJSON object
 		this.updateColor();
 		this.updateHeight(this.tileJSON.tile_height);
-		if (this.has_unit) {
-			this.addUnit(this.unitModel);
+		if (this.tileJSON.has_unit) {
+			this.addUnit();
 		} else {
 			this.removeUnit();
 		}
@@ -197,8 +198,8 @@ export default class Tile extends THREE.Object3D {
 		this.updateColor();
 	}
 
-	addUnit(unitModelRef) {
-		if (!unitModelRef) {
+	addUnit() {
+		if (!this.unitModelRef) {
 			console.error("Invalid unitModelRef: ", unitModelRef);
 			return;
 		}
@@ -211,7 +212,7 @@ export default class Tile extends THREE.Object3D {
 		const scaledDownHeight = this.tileJSON.tile_height / 5;
 
 		// Clone the model Group
-		const unitGroup = unitModelRef.clone();
+		const unitGroup = this.unitModelRef.clone();
 
 		// Apply translation to the unit group
 		unitGroup.position.set(
@@ -226,15 +227,11 @@ export default class Tile extends THREE.Object3D {
 	}
 
 	removeUnit() {
-		if (!this.tileJSON.has_unit) {
-			// Unit does not exist on this tile do nothing
-			return;
-		}
-		this.tileJSON.has_unit = false;
-		this.has_unit = false;
 		const unit = this.getObjectByName("unitModel");
 		if (unit) {
 			this.remove(unit);
+			this.tileJSON.has_unit = false;
+			this.has_unit = false;
 		}
 	}
 
