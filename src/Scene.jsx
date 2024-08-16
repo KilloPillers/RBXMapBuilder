@@ -21,7 +21,7 @@ const BLOOM_SCENE = 1;
 function MapScene() {
   const {
     mapData,
-    setMapData,
+    updateMap,
     mapDataCopy,
     setMapDataCopy,
     selectedCubes,
@@ -131,6 +131,24 @@ function MapScene() {
         return;
       }
     }
+    // To make sure that the cubes do not override each other, we need to sort them by their position depending on the direction
+    if (direction === "up") {
+      selectedCubes.sort((a, b) => {
+        return a.tileJSON.tile_position[1] - b.tileJSON.tile_position[1];
+      });
+    } else if (direction === "down") {
+      selectedCubes.sort((a, b) => {
+        return b.tileJSON.tile_position[1] - a.tileJSON.tile_position[1];
+      });
+    } else if (direction === "left") {
+      selectedCubes.sort((a, b) => {
+        return a.tileJSON.tile_position[0] - b.tileJSON.tile_position[0];
+      });
+    } else if (direction === "right") {
+      selectedCubes.sort((a, b) => {
+        return b.tileJSON.tile_position[0] - a.tileJSON.tile_position[0];
+      });
+    }
 
     // Move the selected cubes in the direction
     for (let cube of selectedCubes) {
@@ -158,7 +176,12 @@ function MapScene() {
         const y = cube.tileJSON.tile_position[1];
         swapCube = cubesRef.current[x * mapData.height + y];
       }
-      //
+      // cube = the cube that is going to be moved
+      // swapCube = the cube that is going to be swapped with
+      //  cube -> swapCube
+      //  A   ->    B
+
+      swapCube.is_selected = true;
       swapCube.swapTileJSON(cube.tileJSON);
       // Remove the cube from the selected cubes
       setSelectedCubes((prevSelectedCubes) =>
@@ -167,17 +190,22 @@ function MapScene() {
       // Add the swap cube to the selected cubes
       setSelectedCubes((prevSelectedCubes) => [...prevSelectedCubes, swapCube]);
 
-      swapCube.is_selected = true;
-      swapCube.resetTile();
       // replace the cube tileJSON with the old tileJSON from mapDataCopy
-      cube.tileJSON = {
-        ...mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
+      console.log(
+        "MapDataCopy: ",
+        mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
           cube.tileJSON.tile_position[1]
-        ],
-      };
+        ]
+      ); // <-- This is the old tileJSON
       cube.is_selected = false;
-      cube.resetTile();
+      cube.swapTileJSON(
+        mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
+          cube.tileJSON.tile_position[1]
+        ]
+      );
     }
+
+    console.log("MapData after move: ", mapData); // <-- This is the updated mapData
   };
 
   // Add arrow key event listener
@@ -516,15 +544,17 @@ function MapScene() {
         if (tileData.has_unit) {
           cube.addUnit();
         }
-        console.log(
-          `Pushing cube at (${i}, ${j}) to index: ${cubesRef.current.length}`
-        );
         cubesRef.current.push(cube);
         scene.add(cube);
       }
     }
 
     return () => {
+      // Clean up the scene
+      // Remove items from the selected cubes
+      setSelectedCubes([]);
+      // Remove the inspected tile
+      setInspectedTile(null);
       // Remove the old cubes from the scene
       cubesRef.current.forEach((cube) => disposeObject(cube));
       cubesRef.current = [];

@@ -143,8 +143,16 @@ export default class Tile extends THREE.Object3D {
 		// and the tileJSON object needs to be updated WITHOUT updating the tileJSON.x and tileJSON.y
 		const prvX = this.tileJSON.tile_position[0];
 		const prvY = this.tileJSON.tile_position[1];
-		this.tileJSON = { ...newTileJSON }; // Copy the newTileJSON object
+		//this.tileJSON = { ...newTileJSON }; // Copy the newTileJSON object
+		this.tileJSON.event_id = newTileJSON.event_id;
+		this.tileJSON.has_unit = newTileJSON.has_unit;
+		this.tileJSON.is_action_tile = newTileJSON.is_action_tile;
+		this.tileJSON.is_deploy_position =
+			newTileJSON.is_deploy_position;
+		this.tileJSON.tile_height = newTileJSON.tile_height;
+		this.tileJSON.tile_name = newTileJSON.tile_name;
 		this.tileJSON.tile_position = [prvX, prvY];
+		this.tileJSON.unit = newTileJSON.unit;
 		this.resetTile();
 	}
 

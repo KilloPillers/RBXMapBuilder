@@ -13,7 +13,9 @@ import "./App.css";
 
 function App() {
   const [mapData, setMapData] = useState(c3);
-  const [mapDataCopy, setMapDataCopy] = useState(c3);
+  const [mapDataCopy, setMapDataCopy] = useState(
+    JSON.parse(JSON.stringify(mapData))
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [selectedCubes, setSelectedCubes] = useState([]);
@@ -47,7 +49,7 @@ function App() {
     <MyContext.Provider
       value={{
         mapData,
-        setMapData,
+        updateMap,
         mapDataCopy,
         setMapDataCopy,
         selectedCubes,
