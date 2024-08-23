@@ -109,25 +109,21 @@ function MapScene() {
     // Check to see if no selected cube is on the edge
     for (let cube of selectedCubes) {
       if (direction === "up" && cube.tileJSON.tile_position[1] === 0) {
-        console.log("Cannot move up");
         return;
       }
       if (
         direction === "down" &&
         cube.tileJSON.tile_position[1] === mapData.height - 1
       ) {
-        console.log("Cannot move down");
         return;
       }
       if (direction === "left" && cube.tileJSON.tile_position[0] === 0) {
-        console.log("Cannot move left");
         return;
       }
       if (
         direction === "right" &&
         cube.tileJSON.tile_position[0] === mapData.width - 1
       ) {
-        console.log("Cannot move right");
         return;
       }
     }
@@ -191,12 +187,6 @@ function MapScene() {
       setSelectedCubes((prevSelectedCubes) => [...prevSelectedCubes, swapCube]);
 
       // replace the cube tileJSON with the old tileJSON from mapDataCopy
-      console.log(
-        "MapDataCopy: ",
-        mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
-          cube.tileJSON.tile_position[1]
-        ]
-      ); // <-- This is the old tileJSON
       cube.is_selected = false;
       cube.swapTileJSON(
         mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
@@ -204,8 +194,6 @@ function MapScene() {
         ]
       );
     }
-
-    console.log("MapData after move: ", mapData); // <-- This is the updated mapData
   };
 
   // Add arrow key event listener
@@ -343,6 +331,7 @@ function MapScene() {
   useEffect(() => {
     const scene = new THREE.Scene();
     sceneRef.current = scene;
+
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -548,6 +537,14 @@ function MapScene() {
         scene.add(cube);
       }
     }
+
+    // Size of the axis helper is the longest axis of the map
+    const longAxis = Math.max(width, height);
+    const axesHelper = new THREE.AxesHelper(longAxis + 5); //The size of the axes helper
+    // The position of the axes helper
+    // the axes helper is positioned at the [0,0] of the map grid
+    axesHelper.position.set(-width / 2, 0, -height / 2 - spacing / 2);
+    scene.add(axesHelper);
 
     return () => {
       // Clean up the scene
