@@ -540,10 +540,14 @@ function MapScene() {
 
     // Size of the axis helper is the longest axis of the map
     const longAxis = Math.max(width, height);
-    const axesHelper = new THREE.AxesHelper(longAxis + 5); //The size of the axes helper
+    const axesHelper = new THREE.AxesHelper(longAxis + 3); //The size of the axes helper
     // The position of the axes helper
     // the axes helper is positioned at the [0,0] of the map grid
-    axesHelper.position.set(-width / 2, 0, -height / 2 - spacing / 2);
+    axesHelper.position.set(
+      Math.ceil(-width / 2) - spacing / 2,
+      0,
+      Math.ceil(-height / 2) - spacing / 2
+    );
     scene.add(axesHelper);
 
     return () => {
@@ -555,6 +559,8 @@ function MapScene() {
       // Remove the old cubes from the scene
       cubesRef.current.forEach((cube) => disposeObject(cube));
       cubesRef.current = [];
+      // Remove the axes helper
+      scene.remove(axesHelper);
     };
   }, [mapData, isModelsLoaded]); // <-- remove mapData from the dependency array when you're ready to implement the updateMap function
 
