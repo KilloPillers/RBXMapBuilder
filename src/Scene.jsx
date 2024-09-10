@@ -57,7 +57,6 @@ function MapScene() {
   const moveTileGroup = (direction) => {
     // Down means y decreases, up means y increases
     // Left means x decreases, right means x increases
-
     // Get the camera direction
     const cameraDirection = new THREE.Vector3();
     cameraRef.current.getWorldDirection(cameraDirection);
@@ -146,6 +145,10 @@ function MapScene() {
       });
     }
 
+    console.log("Selected Cubes: ", selectedCubes);
+    console.log("mapDataCopy: ", mapDataCopy);
+    console.log("cubesRef: ", cubesRef.current);
+
     // Move the selected cubes in the direction
     for (let cube of selectedCubes) {
       // In the code below, x and y are inverted from the way they are stored in the map data.
@@ -216,7 +219,7 @@ function MapScene() {
         console.log("Selected Cubes: ", selectedCubes);
       }
     },
-    [selectedCubes]
+    [selectedCubes, mapDataCopy]
   );
 
   // Add Click event listener to window
