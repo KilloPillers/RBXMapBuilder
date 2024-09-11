@@ -495,7 +495,7 @@ function MapScene() {
       controls.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [isModelsLoaded]);
 
   useEffect(() => {
     // Remove the old cubes from the scene

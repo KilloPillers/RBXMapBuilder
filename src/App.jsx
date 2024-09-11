@@ -28,21 +28,65 @@ function App() {
   };
 
   useEffect(() => {
-    // Load the unit model
-    const loader = new OBJLoader();
-    loader.load("/models/rbxdefaultmodel.obj", function (object) {
-      // Create a group to add to the model to
-      const modelGroup = new THREE.Group();
-      modelGroup.add(object);
+    const OBJFileURL = "/models/rbxdefaultmodel.obj";
 
-      // Apply initial scale and rotation to the model
-      modelGroup.scale.set(0.25, 0.25, 0.25);
-      modelGroup.rotation.y = Math.PI / 2;
-      unitModelRef.current = modelGroup;
-      console.log("Unit model loaded");
-    });
+    const checkFileExists = async (url) => {
+      console.log("Checking file exists:", url);
+      try {
+        const response = await fetch(url);
+        if (
+          response.ok &&
+          response.headers.get("Content-Type").includes("model/obj")
+        ) {
+          return true; // File exists and is of the correct type
+        } else {
+          console.error("File not found or is not a valid OBJ file.");
+          return false;
+        }
+      } catch (error) {
+        console.error("Error checking file:", error);
+        return false;
+      }
+    };
 
-    setIsModelsLoaded(true);
+    const loadModel = async () => {
+      const fileExists = await checkFileExists(OBJFileURL);
+      if (!fileExists) {
+        return;
+      }
+      // Load the unit model
+      const loader = new OBJLoader();
+      // Try to load the model
+      loader.load(
+        OBJFileURL,
+        function (object) {
+          // Check if the object is a valid OBJ file
+          if (object instanceof THREE.Group) {
+            // Create a group to add to the model to
+            const modelGroup = new THREE.Group();
+            modelGroup.add(object);
+
+            // Apply initial scale and rotation to the model
+            modelGroup.scale.set(0.25, 0.25, 0.25);
+            modelGroup.rotation.y = Math.PI / 2;
+            unitModelRef.current = modelGroup;
+            console.log("Unit model loaded");
+
+            setIsModelsLoaded(true);
+          } else {
+            console.error("Model is not an instance of THREE.Group");
+            setIsModelsLoaded(false);
+          }
+        },
+        undefined,
+        function (error) {
+          console.error(error);
+          setIsModelsLoaded(false);
+        }
+      );
+    };
+
+    loadModel();
   }, []);
 
   return (
