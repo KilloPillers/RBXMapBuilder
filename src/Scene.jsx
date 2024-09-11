@@ -145,10 +145,6 @@ function MapScene() {
       });
     }
 
-    console.log("Selected Cubes: ", selectedCubes);
-    console.log("mapDataCopy: ", mapDataCopy);
-    console.log("cubesRef: ", cubesRef.current);
-
     // Move the selected cubes in the direction
     for (let cube of selectedCubes) {
       // In the code below, x and y are inverted from the way they are stored in the map data.
@@ -214,12 +210,29 @@ function MapScene() {
       if (event.key === "ArrowRight") {
         moveTileGroup("right");
       }
+      if (event.key === "Escape") {
+        // Deselect all cubes
+        for (let cube of selectedCubes) {
+          cube.is_selected = false;
+          cube.updateColor();
+          cube.layers.disable(BLOOM_SCENE);
+        }
+        setSelectedCubes([]);
+        // Deselect the inspected tile
+        if (inspectedTile) {
+          inspectedTile.is_inspected = false;
+          inspectedTile.updateColor();
+          inspectedTile.layers.disable(BLOOM_SCENE);
+          setInspectedTile(null);
+        }
+      }
       // On spacebar press, show debug info
       if (event.key === " ") {
         console.log("Selected Cubes: ", selectedCubes);
+        console.log("Inspected Tile: ", inspectedTile);
       }
     },
-    [selectedCubes, mapDataCopy]
+    [selectedCubes, mapDataCopy, inspectedTile]
   );
 
   // Add Click event listener to window
@@ -515,7 +528,6 @@ function MapScene() {
     const spacing = 1.0;
 
     if (mapData.ButtonGrid === "empty") {
-      console.log("Empty map");
       return;
     }
 
