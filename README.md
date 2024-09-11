@@ -28,7 +28,7 @@ Understanding how to read the map is the first step to using the app.
     * Action Position: Represented by a red highlight on a tile.
     * Map Origin: The map origin is where the axis meet. This is the starting point of the grid and represents the (1,0) coordinate.
 
-![Map Example](./images/VisualKey.png)
+![Map Example](./images/Visualkey.png)
 
 ## Tile Configuration
 
