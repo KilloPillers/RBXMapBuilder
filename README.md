@@ -28,7 +28,7 @@ Understanding how to read the map is the first step to using the app.
     * Action Position: Represented by a red highlight on a tile.
     * Map Origin: The map origin is where the axis meet. This is the starting point of the grid and represents the (1,0) coordinate.
 
-    ![Map Example](/images/VisualKey.png)
+![Map Example](./images/VisualKey.png)
 
 ## Tile Configuration
 
@@ -114,7 +114,7 @@ An overview of the tools available in the app.
     - This tool allows you to move tiles around the grid. You can use it to reposition tiles as needed.
     - To use the move tool, select the tile(s) you want to move, then using the arrow keys on your keyboard, move the tiles around the grid.
 
-![Tools](/images/MovingsTiles.gif)
+![Tools](./images/MovingTiles.gif)
 
 ---
 
