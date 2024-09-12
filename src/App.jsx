@@ -28,7 +28,7 @@ function App() {
   };
 
   useEffect(() => {
-    const OBJFileURL = "/models/rbxdefaultmodel.obj";
+    const OBJFileURL = "/models/rbxdefaultmodel.obj?url";
 
     const checkFileExists = async (url) => {
       console.log("Checking file exists:", url);

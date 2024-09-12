@@ -11,7 +11,7 @@
   },
   "tauri": {
     "bundle": {
-      "resources": ["./public/models/*"]
+      "resources": ["./public/models/rbxdefaultmodel.obj"]
     },
     "allowlist": {
       "all": false,
