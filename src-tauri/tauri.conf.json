@@ -10,6 +10,9 @@
     "version": "2.0.1"
   },
   "tauri": {
+    "bundle": {
+      "resources": ["./public/models/*"]
+    },
     "allowlist": {
       "all": false,
       "shell": {
