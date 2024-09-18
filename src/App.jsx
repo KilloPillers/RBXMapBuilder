@@ -6,6 +6,8 @@ import MapScene from "./Scene.jsx";
 import Overlay from "./Overlay.jsx";
 import { useEffect } from "react";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { resolveResource } from "@tauri-apps/api/path";
+import { invoke } from "@tauri-apps/api/tauri";
 import * as THREE from "three";
 import emptyMap from "./testMap";
 import c3 from "./c3";
@@ -28,7 +30,8 @@ function App() {
   };
 
   useEffect(() => {
-    const OBJFileURL = "/models/rbxdefaultmodel.obj?url";
+    /*
+    const OBJFileURL = "/models/rbxdefaultmodel.obj";
 
     const checkFileExists = async (url) => {
       console.log("Checking file exists:", url);
@@ -48,17 +51,16 @@ function App() {
         return false;
       }
     };
+    */
 
     const loadModel = async () => {
-      const fileExists = await checkFileExists(OBJFileURL);
-      if (!fileExists) {
-        return;
-      }
+      const modelPath = "/models/rbxdefaultmodel.obj";
+
       // Load the unit model
       const loader = new OBJLoader();
       // Try to load the model
       loader.load(
-        OBJFileURL,
+        modelPath,
         function (object) {
           // Check if the object is a valid OBJ file
           if (object instanceof THREE.Group) {
