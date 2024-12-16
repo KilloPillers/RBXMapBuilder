@@ -452,8 +452,15 @@ function MapScene() {
     camera.position.y = 5;
     camera.position.x = -8;
     camera.lookAt(target);
+
     // Add orbit controls
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.mouseButtons = {
+      LEFT: null,
+      MIDDLE: THREE.MOUSE.PAN,
+      RIGHT: THREE.MOUSE.ROTATE,
+    };
+
     controlsRef.current = controls;
     controls.target = target;
 

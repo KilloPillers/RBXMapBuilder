@@ -12,6 +12,7 @@ Welcome to the tutorial for **Roblox Map Editor** This guide will walk you throu
 4. [Position Configuration](#position-configuration)
 5. [Different Tools](#different-tools)
 6. [Saving, Loading, and Creating](#saving-loading-and-creating)
+7. [TODO](#todo)
 
 ---
 
@@ -138,6 +139,14 @@ Learn how to save, load, and create new projects.
     - This will reset the grid and clear all configurations so make sure to save your current project before creating a new one.
 
 ---
+
+## TODO
+
+1. **Add Keyboard Shortcuts:**
+
+    - Add keyboard shortcuts for different tools and actions to make the app more user-friendly.
+    - Add keyboard shortcut to save the project.
+    - Fix the issue with the move tool not working properly.
 
 ## Conclusion
 
