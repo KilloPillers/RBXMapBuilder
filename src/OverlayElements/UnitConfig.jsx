@@ -62,11 +62,6 @@ export default function UnitConfig() {
   const [key, setKey] = useState(0);
 
   const handleDelete = () => {
-    if (inspectedTile) {
-      inspectedTile.tileJSON.unit = defaultUnitData;
-      inspectedTile.removeUnit();
-    }
-
     if (selectedCubes.length === 0) {
       return;
     }
@@ -124,11 +119,6 @@ export default function UnitConfig() {
       skills: [skill1, skill2, skill3, skill4],
       passives: [passive1, passive2, passive3],
     };
-
-    if (inspectedTile) {
-      inspectedTile.tileJSON.unit = unitData;
-      inspectedTile.addUnit(unitModelRef.current);
-    }
 
     if (selectedCubes.length === 0) {
       return;

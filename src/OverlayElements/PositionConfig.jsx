@@ -44,9 +44,6 @@ export default function PositionConfig() {
   };
 
   const saveDeployPosition = (event) => {
-    if (inspectedTile) {
-      inspectedTile.setDeployPosition(deployPosition);
-    }
     for (let i = 0; i < selectedCubes.length; i++) {
       const cube = selectedCubes[i];
       cube.setDeployPosition(deployPosition);
@@ -54,11 +51,6 @@ export default function PositionConfig() {
   };
 
   const saveActionPosition = (event) => {
-    if (inspectedTile) {
-      inspectedTile.setActionTile(actionPosition);
-      inspectedTile.tileJSON.tile_name = tileName;
-      inspectedTile.tileJSON.event_id = eventID;
-    }
     for (let i = 0; i < selectedCubes.length; i++) {
       const cube = selectedCubes[i];
       cube.setActionTile(actionPosition);

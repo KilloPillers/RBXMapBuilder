@@ -32,7 +32,7 @@ import "./DrawerMenu.css";
 const buttons = [];
 
 export default function TileConfig() {
-  const { selectedCubes, inspectedTile } = React.useContext(MyContext);
+  const { selectedCubes } = React.useContext(MyContext);
   const [decimalHeight, setDecimalHeight] = React.useState(0);
   const [oldHeight, setOldHeight] = React.useState(1);
   const [height, setHeight] = React.useState(1);
@@ -41,14 +41,10 @@ export default function TileConfig() {
   const [mode, setMode] = React.useState("uniform");
 
   useEffect(() => {
-    if (selectedCubes.length > 0 || inspectedTile) {
+    if (selectedCubes.length > 0) {
       // Find Median Height
       let totalHeight = 0;
       let numTiles = 0;
-      if (inspectedTile) {
-        totalHeight += inspectedTile.tileJSON.tile_height;
-        numTiles++;
-      }
       for (let i = 0; i < selectedCubes.length; i++) {
         totalHeight += selectedCubes[i].tileJSON.tile_height;
         numTiles++;
@@ -64,7 +60,7 @@ export default function TileConfig() {
       setOldHeight(medianHeight);
       setMaxHeight(2 * Math.ceil(medianHeight - minHeight));
     }
-  }, [selectedCubes, inspectedTile]);
+  }, [selectedCubes]);
 
   function preventHorizontalKeyboardNavigation(event) {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -83,9 +79,6 @@ export default function TileConfig() {
 
     if (mode === "discrete") {
       let delta = newHeight - oldHeight;
-      if (inspectedTile) {
-        inspectedTile.updateHeight(newHeight);
-      }
       for (let i = 0; i < selectedCubes.length; i++) {
         let newHeight = selectedCubes[i].tileJSON.tile_height + delta;
         // convert to 2 decimal places
@@ -93,9 +86,6 @@ export default function TileConfig() {
         selectedCubes[i].updateHeight(newHeight);
       }
     } else {
-      if (inspectedTile) {
-        inspectedTile.updateHeight(newHeight);
-      }
       for (let i = 0; i < selectedCubes.length; i++) {
         selectedCubes[i].updateHeight(newHeight);
       }

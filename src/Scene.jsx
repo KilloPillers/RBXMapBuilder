@@ -62,6 +62,7 @@ function MapScene() {
     cameraRef.current.getWorldDirection(cameraDirection);
     // Normalize the camera direction
     cameraDirection.normalize();
+
     // Figure out which direction to move the tiles based on the camera direction
     // Magnitude of the camera direction vector
     // If the camera direction is mostly in the x direction
@@ -126,6 +127,7 @@ function MapScene() {
         return;
       }
     }
+
     // To make sure that the cubes do not override each other, we need to sort them by their position depending on the direction
     if (direction === "up") {
       selectedCubes.sort((a, b) => {
