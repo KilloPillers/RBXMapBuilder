@@ -178,22 +178,21 @@ function MapScene() {
       //  cube -> swapCube
       //  A   ->    B
 
+
+      // Perform swap
       swapCube.is_selected = true;
       swapCube.swapTileJSON(cube.tileJSON);
+      // Replace the cube tileJSON with the old tileJSON from mapDataCopy
+      cube.is_selected = false;
+      const cubeTile = mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][cube.tileJSON.tile_position[1]];
+      cube.swapTileJSON(cubeTile);
+
       // Remove the cube from the selected cubes
       setSelectedCubes((prevSelectedCubes) =>
         prevSelectedCubes.filter((selectedCube) => selectedCube !== cube)
       );
       // Add the swap cube to the selected cubes
       setSelectedCubes((prevSelectedCubes) => [...prevSelectedCubes, swapCube]);
-
-      // replace the cube tileJSON with the old tileJSON from mapDataCopy
-      cube.is_selected = false;
-      cube.swapTileJSON(
-        mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
-          cube.tileJSON.tile_position[1]
-        ]
-      );
     }
   };
 
@@ -213,12 +212,21 @@ function MapScene() {
         moveTileGroup("right");
       }
       if (event.key === "Escape") {
-        // Deselect all cubes
         for (let cube of selectedCubes) {
+          // Update the mapDataCopy to reflect the change
+          // Find the tile in the mapDataCopy and update it
+          const x = cube.tileJSON.tile_position[0];
+          const y = cube.tileJSON.tile_position[1];
+          mapDataCopy.ButtonGrid[x][y] = cube.tileJSON;
+          // Deselect cube
           cube.is_selected = false;
           cube.updateColor();
           cube.layers.disable(BLOOM_SCENE);
         }
+        // Update the MapDataCopy
+        const newMapDataCopy = JSON.parse(JSON.stringify(mapDataCopy)); // Deep copy
+        setMapDataCopy(newMapDataCopy);
+        // Deselect the selected cubes
         setSelectedCubes([]);
         // Deselect the inspected tile
         if (inspectedTile) {
@@ -229,12 +237,12 @@ function MapScene() {
         }
       }
       // On spacebar press, show debug info
-      if (event.key === " ") {
-        console.log("Selected Cubes: ", selectedCubes);
-        console.log("Inspected Tile: ", inspectedTile);
-      }
+      //if (event.key === " ") {
+        //console.log("Selected Cubes: ", selectedCubes);
+        //console.log("Inspected Tile: ", inspectedTile);
+      //}
     },
-    [selectedCubes, mapDataCopy, inspectedTile]
+    [selectedCubes, mapDataCopy, inspectedTile, moveTileGroup]
   );
 
   // Add Click event listener to window
@@ -305,6 +313,14 @@ function MapScene() {
               if (prevSelectedCubes.includes(selectedObject)) {
                 selectedObject.is_selected = false;
                 selectedObject.updateColor();
+                // Update the MapDataCopy to reflect the change
+                // Find the tile in the mapDataCopy and update it
+                const x = selectedObject.tileJSON.tile_position[0];
+                const y = selectedObject.tileJSON.tile_position[1];
+                mapDataCopy.ButtonGrid[x][y] = selectedObject.tileJSON;
+                const newMapDataCopy = JSON.parse(JSON.stringify(mapDataCopy)); // Deep copy 
+                setMapDataCopy(newMapDataCopy);
+                // Disable bloom for the tile if it is not the inspected tile
                 if (inspectedTile !== selectedObject) {
                   tileIntersects[0].object.layers.disable(BLOOM_SCENE);
                 }

@@ -146,7 +146,6 @@ Learn how to save, load, and create new projects.
 
     - Add keyboard shortcuts for different tools and actions to make the app more user-friendly.
     - Add keyboard shortcut to save the project.
-    - Fix the issue with the move tool not working properly.
 
 ## Conclusion
 
