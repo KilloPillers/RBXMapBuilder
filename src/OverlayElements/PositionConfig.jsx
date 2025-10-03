@@ -2,7 +2,6 @@ import * as React from "react";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
 import { MenuTheme } from "../Themes/MenuTheme";
-import { useRef } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import Box from "@mui/material/Box";

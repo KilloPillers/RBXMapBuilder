@@ -1,10 +1,4 @@
-import React, {
-  useRef,
-  useEffect,
-  useState,
-  useContext,
-  useCallback,
-} from "react";
+import React, { useRef, useEffect, useContext, useCallback } from "react";
 import * as THREE from "three";
 import Tile from "./Models/Tile";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -14,7 +8,6 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { MyContext } from "./MyContext";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 const BLOOM_SCENE = 1;
 
@@ -178,18 +171,20 @@ function MapScene() {
       //  cube -> swapCube
       //  A   ->    B
 
-
       // Perform swap
       swapCube.is_selected = true;
       swapCube.swapTileJSON(cube.tileJSON);
       // Replace the cube tileJSON with the old tileJSON from mapDataCopy
       cube.is_selected = false;
-      const cubeTile = mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][cube.tileJSON.tile_position[1]];
+      const cubeTile =
+        mapDataCopy.ButtonGrid[cube.tileJSON.tile_position[0]][
+          cube.tileJSON.tile_position[1]
+        ];
       cube.swapTileJSON(cubeTile);
 
       // Remove the cube from the selected cubes
       setSelectedCubes((prevSelectedCubes) =>
-        prevSelectedCubes.filter((selectedCube) => selectedCube !== cube)
+        prevSelectedCubes.filter((selectedCube) => selectedCube !== cube),
       );
       // Add the swap cube to the selected cubes
       setSelectedCubes((prevSelectedCubes) => [...prevSelectedCubes, swapCube]);
@@ -238,11 +233,11 @@ function MapScene() {
       }
       // On spacebar press, show debug info
       //if (event.key === " ") {
-        //console.log("Selected Cubes: ", selectedCubes);
-        //console.log("Inspected Tile: ", inspectedTile);
+      //console.log("Selected Cubes: ", selectedCubes);
+      //console.log("Inspected Tile: ", inspectedTile);
       //}
     },
-    [selectedCubes, mapDataCopy, inspectedTile, moveTileGroup]
+    [selectedCubes, mapDataCopy, inspectedTile, moveTileGroup],
   );
 
   // Add Click event listener to window
@@ -268,7 +263,7 @@ function MapScene() {
       // Calculate objects intersecting the picking ray
       const intersects = raycaster.intersectObjects(
         sceneRef.current.children,
-        true
+        true,
       );
 
       // Filter so we only get the Tile objects
@@ -318,14 +313,14 @@ function MapScene() {
                 const x = selectedObject.tileJSON.tile_position[0];
                 const y = selectedObject.tileJSON.tile_position[1];
                 mapDataCopy.ButtonGrid[x][y] = selectedObject.tileJSON;
-                const newMapDataCopy = JSON.parse(JSON.stringify(mapDataCopy)); // Deep copy 
+                const newMapDataCopy = JSON.parse(JSON.stringify(mapDataCopy)); // Deep copy
                 setMapDataCopy(newMapDataCopy);
                 // Disable bloom for the tile if it is not the inspected tile
                 if (inspectedTile !== selectedObject) {
                   tileIntersects[0].object.layers.disable(BLOOM_SCENE);
                 }
                 return prevSelectedCubes.filter(
-                  (cube) => cube !== selectedObject
+                  (cube) => cube !== selectedObject,
                 );
               } else {
                 selectedObject.is_selected = true;
@@ -339,7 +334,7 @@ function MapScene() {
         }
       }
     },
-    [tool, inspectedTile]
+    [tool, inspectedTile],
   );
 
   useEffect(() => {
@@ -370,7 +365,7 @@ function MapScene() {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      1000,
     );
     cameraRef.current = camera;
 
@@ -386,7 +381,7 @@ function MapScene() {
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       1.5,
       0.4,
-      0.85
+      0.85,
     );
     bloomPass.threshold = 0.1;
     bloomPass.strength = 0.2;
@@ -419,7 +414,7 @@ function MapScene() {
           }
         `,
       }),
-      "baseTexture"
+      "baseTexture",
     );
 
     const outputPass = new OutputPass();
@@ -565,7 +560,7 @@ function MapScene() {
         const cube = new Tile(tileData);
         cube.updatePosition(
           (i - Math.floor(width / 2)) * spacing,
-          (j - Math.floor(height / 2)) * spacing
+          (j - Math.floor(height / 2)) * spacing,
         );
         cube.updateHeight(tileData.tile_height);
         cube.updateColor();
@@ -586,7 +581,7 @@ function MapScene() {
     axesHelper.position.set(
       Math.ceil(-width / 2) - spacing / 2,
       0,
-      Math.ceil(-height / 2) - spacing / 2
+      Math.ceil(-height / 2) - spacing / 2,
     );
     scene.add(axesHelper);
 

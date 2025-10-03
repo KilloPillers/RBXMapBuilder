@@ -1,22 +1,18 @@
 import React from "react";
 import { useState } from "react";
-import { createContext } from "react";
 import { MyContext } from "./MyContext";
 import MapScene from "./Scene.jsx";
 import Overlay from "./Overlay.jsx";
 import { useEffect } from "react";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
-import { resolveResource } from "@tauri-apps/api/path";
-import { invoke } from "@tauri-apps/api/tauri";
 import * as THREE from "three";
-import emptyMap from "./testMap";
 import c3 from "./c3";
 import "./App.css";
 
 function App() {
   const [mapData, setMapData] = useState(c3);
   const [mapDataCopy, setMapDataCopy] = useState(
-    JSON.parse(JSON.stringify(mapData))
+    JSON.parse(JSON.stringify(mapData)),
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
@@ -84,7 +80,7 @@ function App() {
         function (error) {
           console.error(error);
           setIsModelsLoaded(false);
-        }
+        },
       );
     };
 

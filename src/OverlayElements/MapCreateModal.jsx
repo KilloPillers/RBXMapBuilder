@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import { useEffect } from "react";
 import { useRef } from "react";
 import { forwardRef } from "react";
 import Box from "@mui/material/Box";
@@ -32,7 +31,7 @@ const defaultUnitData = {
 };
 
 const MapCreateModal = forwardRef((props, ref) => {
-  const { mapData, updateMap } = useContext(MyContext);
+  const { updateMap, setMapDataCopy } = useContext(MyContext);
   const widthRef = useRef(null);
   const heightRef = useRef(null);
 
@@ -61,6 +60,7 @@ const MapCreateModal = forwardRef((props, ref) => {
       ButtonGrid: ButtonGrid,
     };
     updateMap(jsonData);
+    setMapDataCopy(jsonData);
   }
 
   return (

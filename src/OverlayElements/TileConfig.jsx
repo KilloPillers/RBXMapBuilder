@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 import { useEffect } from "react";
 import { MyContext } from "../MyContext";
 import Paper from "@mui/material/Paper";
@@ -7,14 +6,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import { MenuTheme } from "../Themes/MenuTheme";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
-import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
@@ -28,8 +21,6 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ViewWeekIcon from "@mui/icons-material/ViewWeek";
 import "./DrawerMenu.css";
-
-const buttons = [];
 
 export default function TileConfig() {
   const { selectedCubes } = React.useContext(MyContext);

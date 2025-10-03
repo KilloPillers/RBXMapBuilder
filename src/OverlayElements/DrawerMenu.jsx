@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useState } from "react";
-import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider } from "@mui/material/styles";
@@ -11,10 +10,7 @@ import TileConfig from "./TileConfig";
 import { MyContext } from "../MyContext";
 import { IconButton } from "@mui/material";
 import GridViewIcon from "@mui/icons-material/GridView";
-import PeopleIcon from "@mui/icons-material/People";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import CodeIcon from "@mui/icons-material/Code";
-import LayersIcon from "@mui/icons-material/Layers";
 import UnitConfig from "./UnitConfig";
 import PositionConfig from "./PositionConfig";
 import NotListedLocationIcon from "@mui/icons-material/NotListedLocation";
