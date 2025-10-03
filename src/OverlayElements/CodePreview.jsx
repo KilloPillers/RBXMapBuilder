@@ -23,7 +23,7 @@ const CodePreview = forwardRef((props, ref) => {
     generateCode(mapData);
     setCodeString(unitCode);
     setCodeType("Unit");
-  }, [props.open]);
+  }, [props.open, mapData]);
 
   useEffect(() => {
     // ensure prism is loaded before attempting to highlight'
